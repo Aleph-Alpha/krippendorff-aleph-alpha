@@ -11,8 +11,9 @@ variables:
   PYTHON_VERSION: "3.13"
 
 before_script:
-  - eval "$(uv venv --init --python $PYTHON_VERSION)"
-  - uv pip install -e .[dev]
+  - pip install uv
+  - uv python install $PYTHON_VERSION
+  - uv sync
 
 lint:
   stage: lint

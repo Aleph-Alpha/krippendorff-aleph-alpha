@@ -129,6 +129,7 @@ source = { editable = "." }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
+    { name = "semantic-version" },
 ]
 
 [package.dev-dependencies]
@@ -150,6 +151,7 @@ dev = [
 requires-dist = [
     { name = "numpy", specifier = ">=2.2.2" },
     { name = "pandas", specifier = ">=2.2.3" },
+    { name = "semantic-version", specifier = ">=2.10.0" },
 ]
 
 [package.metadata.requires-dev]
