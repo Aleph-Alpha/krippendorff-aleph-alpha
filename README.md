@@ -6,9 +6,13 @@ This repository contains an implementation of Krippendorff’s Alpha, a statisti
 Features (Planned & In Progress)
 
 ✔️ Support for multiple data types (Nominal, Ordinal, etc.)
+
 ✔️ Flexible data input formats (CSV, JSON, DataFrames)
+
 ✔️ Custom distance metrics for different applications
+
 ✔️ Performance optimizations (vectorization, sparse matrices)
+
 ✔️ Structured outputs with optional visualizations
 Installation
 
