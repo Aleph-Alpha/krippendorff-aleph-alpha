@@ -1,7 +1,51 @@
 [project]
 name = "krippendorff-aleph-alpha"
+version = "0.1.0"
 authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
 description = "A robust implementation of Krippendorff’s Alpha"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+
+dependencies = [
+    "numpy>=2.2.2",
+    "pandas>=2.2.3",
+]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.8.2",
+    "mypy>=1.14.1",
+    "pylint>=3.3.4",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.9.4",
+    "semantic-version>=2.10.0",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+lint = "krippendorff_alpha.utils:run_ruff"
+format = "krippendorff_alpha.utils:run_format"
+test = "krippendorff_alpha.utils:run_pytest"
+typecheck = "krippendorff_alpha.utils:run_mypy"
+all = "krippendorff_alpha.utils:run_all"
+
+[tool.mypy]
+files = "src,tests"
+strict = true
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+packages = ["krippendorff_alpha"]
+package-dir = { "" = "src" }
