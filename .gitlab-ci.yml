@@ -40,9 +40,9 @@ test:
   script:
     - uv run test
 
-release:
-  stage: release
-  script:
-    - python create_release_tag.py
-  only:
-    - main
+# release:  # Comment out the release job
+#   stage: release
+#   script:
+#     - uv run python create_release_tag.py
+#   only:
+#     - main
