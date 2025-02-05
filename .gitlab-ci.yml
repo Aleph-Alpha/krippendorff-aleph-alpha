@@ -1,0 +1,43 @@
+stages:
+  - lint
+  - typecheck
+  - security
+  - test
+  - release
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+  PYTHON_VERSION: "3.13"
+
+before_script:
+  - eval "$(uv venv --init --python $PYTHON_VERSION)"
+  - uv pip install -e .[dev]
+
+lint:
+  stage: lint
+  script:
+    - uv run lint
+    - uv run format --check
+
+typecheck:
+  stage: typecheck
+  script:
+    - uv run typecheck
+
+security:
+  stage: security
+  script:
+    - uv run bandit -r src/
+
+test:
+  stage: test
+  script:
+    - uv run test
+
+release:
+  stage: release
+  script:
+    - python create_release_tag.py
+  only:
+    - main
