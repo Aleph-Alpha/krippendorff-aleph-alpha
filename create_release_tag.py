@@ -26,7 +26,7 @@ def create_release_tag() -> None:
     print(f"Created release tag {tag_name}")
 
     # Optionally, push the tag to the remote repository
-    origin = repo.remote(name='origin')
+    origin = repo.remote(name="origin")
     origin.push(tag_name)
     print(f"Pushed release tag {tag_name} to remote")
 
