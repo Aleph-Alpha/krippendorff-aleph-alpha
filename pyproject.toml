@@ -1,0 +1,7 @@
+[project]
+name = "krippendorff-aleph-alpha"
+authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
+description = "A robust implementation of Krippendorff’s Alpha"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []

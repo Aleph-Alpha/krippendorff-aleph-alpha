@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+**.pyc
+*.pyc
+
+# Virtual environments
+.venv
+.env
+
+# System files
+.DS_Store
+
+# IDE
+.vscode/
+.idea
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
