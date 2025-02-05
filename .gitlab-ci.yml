@@ -10,7 +10,11 @@ variables:
   UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
   PYTHON_VERSION: "3.13"
 
+default:
+  image: python:3.13
+
 before_script:
+  - python -m pip install --upgrade pip
   - pip install uv
   - uv python install $PYTHON_VERSION
   - uv sync
