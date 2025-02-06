@@ -9,6 +9,7 @@ requires-python = ">=3.13"
 dependencies = [
     "numpy>=2.2.2",
     "pandas>=2.2.3",
+    "pydantic>=2.10.6",
     "semantic-version>=2.10.0",
 ]
 
