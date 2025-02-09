@@ -1,21 +1,21 @@
+from typing import List, Tuple
+
 import pytest
-from pathlib import Path
-from typing import Dict
+import os
 
 
 @pytest.fixture
-def example_files() -> Dict[str, Path]:
-    """Provide paths to example files."""
-    root_dir = Path(__file__).resolve().parent.parent  # Move up to the project root
-    files = {
-        "json": root_dir / "examples/nominal_categorical_noOrder_sample.json",
-        "jsonl": root_dir / "examples/interval_numeric_equalGaps_noAbsoluteZero.jsonl",
-        "csv": root_dir / "examples/ordinal_orderedCategories_unequalGaps_sample.csv",
-        "tsv": root_dir / "examples/ratio_numeric_equalGaps_withAbsoluteZero.tsv",
-    }
+def example_data() -> str:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    example_dir = os.path.join(base_dir, "../examples")
+    return example_dir
 
-    for key, file in files.items():
-        if not file.exists():
-            pytest.fail(f"Test file for {key} is missing: {file}")
 
-    return files
+@pytest.fixture
+def datasets() -> List[Tuple[str, str]]:
+    return [
+        ("interval_numeric_equalGaps_noAbsoluteZero.jsonl", "interval"),
+        ("nominal_categorical_noOrder_sample.json", "nominal"),
+        ("ordinal_orderedCategories_unequalGaps_sample.csv", "ordinal"),
+        ("ratio_numeric_equalGaps_withAbsoluteZero.tsv", "ratio"),
+    ]

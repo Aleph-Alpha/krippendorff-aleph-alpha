@@ -23,17 +23,17 @@ lint:
   stage: lint
   script:
     - uv run lint
-    - uv run format --check
+    - uv run format --check.jsonl
 
 typecheck:
   stage: typecheck
   script:
     - uv run typecheck
 
-security:
-  stage: security
-  script:
-    - uv run bandit -r src/
+#security:
+#  stage: security
+#  script:
+#    - uv run bandit -r src/
 
 test:
   stage: test

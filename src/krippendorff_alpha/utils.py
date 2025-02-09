@@ -27,7 +27,7 @@ def run_pytest() -> None:
 
 
 def run_mypy() -> None:
-    run_pipeline_step(["mypy", "src", "tests"])
+    run_pipeline_step(["mypy", "--explicit-package-bases", "src", "tests"])
 
 
 def run_all() -> None:
