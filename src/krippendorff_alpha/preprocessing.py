@@ -16,6 +16,10 @@ from src.krippendorff_alpha.constants import (
 logging.basicConfig(level=logging.INFO)
 
 
+ordinal_mappings: Dict[str, Dict[str, int]] = {}
+nominal_mappings: Dict[str, Dict[str, int]] = {}
+
+
 def detect_column(df: pd.DataFrame, column_aliases: Set[str]) -> Optional[str]:
     matches = [col for col in df.columns if col.lower().strip() in {name.lower() for name in column_aliases}]
     logging.debug(f"Checking columns {df.columns} against aliases {column_aliases}. Found matches: {matches}")
@@ -215,9 +219,6 @@ def convert_ordinal_to_numeric(column: pd.Series) -> pd.Series:
 
     mapping = {label: i for i, label in enumerate(sorted(unique_values))}
     return column.map(mapping)
-
-
-nominal_mappings: Dict[str, Dict[str, int]] = {}
 
 
 def convert_nominal_to_numeric(column: pd.Series, col_name: str) -> pd.Series:
