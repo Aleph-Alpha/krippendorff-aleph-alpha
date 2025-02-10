@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 import json
 import re
 import logging
@@ -17,15 +18,19 @@ logging.basicConfig(level=logging.INFO)
 
 def detect_column(df: pd.DataFrame, column_aliases: Set[str]) -> Optional[str]:
     matches = [col for col in df.columns if col.lower().strip() in {name.lower() for name in column_aliases}]
+    logging.debug(f"Checking columns {df.columns} against aliases {column_aliases}. Found matches: {matches}")
 
     if len(matches) > 1:
         logging.warning(f"Multiple matching columns found {matches}. Using first detected: {matches[0]}")
+    elif not matches:
+        logging.warning(f"No columns matched the aliases {column_aliases}.")
 
     return matches[0] if matches else None
 
 
 def detect_annotator_columns(df: pd.DataFrame) -> List[str]:
     matches = [col for col in df.columns if ANNOTATOR_REGEX.match(col)]
+    logging.debug(f"Detected annotator columns: {matches}")
 
     if len(matches) < 3:
         logging.warning(f"Detected only {len(matches)} annotator columns: {matches}. At least 3 are recommended.")
@@ -38,21 +43,45 @@ def detect_annotator_columns(df: pd.DataFrame) -> List[str]:
 
 
 def load_data(path: str) -> pd.DataFrame:
-    file_ext = Path(path).suffix.lower()
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"The file at {path} was not found.")
 
-    if file_ext in {".csv", ".tsv"}:
-        sep = "\t" if file_ext == ".tsv" else ","
-        return pd.read_csv(path, sep=sep)
-    elif file_ext == ".json":
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return flatten_json(data)
-    elif file_ext == ".jsonl":
-        with open(path, "r", encoding="utf-8") as f:
-            data = [json.loads(line) for line in f]
-        return flatten_jsonl(data)
-    else:
-        raise ValueError(f"Unsupported file format: {file_ext}. Supported formats: CSV, TSV, JSON, JSONL.")
+    logging.info(f"Loading data from {path}")
+    try:
+        file_ext = Path(path).suffix.lower()
+        logging.debug(f"File extension detected: {file_ext}")
+
+        if file_ext in {".csv", ".tsv"}:
+            sep = "\t" if file_ext == ".tsv" else ","
+            logging.info(f"Reading CSV/TSV file with separator: {sep}")
+            return pd.read_csv(path, sep=sep)
+
+        elif file_ext == ".json":
+            with open(path, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                    logging.info("Successfully loaded JSON file.")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Error decoding JSON file {path}: {e}")
+            return flatten_json(data)
+
+        elif file_ext == ".jsonl":
+            with open(path, "r", encoding="utf-8") as f:
+                try:
+                    data = [json.loads(line) for line in f]
+                    logging.info("Successfully loaded JSONL file.")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Error decoding JSONL file {path}: {e}")
+            return flatten_jsonl(data)
+
+        else:
+            raise ValueError(f"Unsupported file format: {file_ext}. Supported formats: CSV, TSV, JSON, JSONL.")
+
+    except PermissionError:
+        raise PermissionError(f"Permission denied when accessing the file at {path}.")
+    except Exception as e:
+        logging.error(f"An error occurred while loading the file at {path}: {str(e)}")
+        raise RuntimeError(f"An error occurred while loading the file at {path}: {str(e)}")
 
 
 def flatten_json(data: List[Dict[str, str]]) -> pd.DataFrame:
@@ -141,24 +170,39 @@ def flatten_jsonl(data: List[Dict[str, str]]) -> pd.DataFrame:
 
 
 def infer_annotation_type(column: pd.Series) -> DataTypeEnum:
-    if column.dtype == "object":
-        unique_values = list(column.dropna().unique())
+    # Check for empty column
+    if column.isnull().all():
+        logging.warning(f"Column '{column.name}' is empty. Defaulting to NOMINAL type.")
+        return DataTypeEnum.NOMINAL
 
+    # Handle object (string) columns
+    if column.dtype == "object":
+        unique_values = column.dropna().unique()
+
+        # Check for ordinal categories
         for ordinal_scale in ORDINAL_CATEGORIES:
             if set(unique_values).issubset(set(ordinal_scale)):
                 return DataTypeEnum.ORDINAL
 
-        return DataTypeEnum.NOMINAL
+        return DataTypeEnum.NOMINAL  # Default for non-numeric categorical data
 
+    # Handle numeric columns
     elif column.dtype in ["int64", "float64"]:
         unique_values = column.dropna().unique()
-        if len(unique_values) < 10 and all(isinstance(x, (int, float)) for x in unique_values):
-            return DataTypeEnum.ORDINAL
-        elif column.min() >= 0:
-            return DataTypeEnum.RATIO
-        else:
+
+        # Interval: If data has negative values, it CANNOT be ratio
+        if column.min() < 0:
             return DataTypeEnum.INTERVAL
 
+        # Ratio: Has a meaningful zero and positive values
+        if column.min() == 0 and (column.max() - column.min()) > 1:
+            return DataTypeEnum.RATIO
+
+        # If data is numeric but doesn't fit ratio, assume interval
+        return DataTypeEnum.INTERVAL
+
+    # Handle unexpected data types
+    logging.warning(f"Column '{column.name}' has an unsupported data type ({column.dtype}). Defaulting to NOMINAL.")
     return DataTypeEnum.NOMINAL
 
 
