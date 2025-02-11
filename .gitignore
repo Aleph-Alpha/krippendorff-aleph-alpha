@@ -29,3 +29,6 @@ dmypy.json
 .ipynb_checkpoints
 *.ipynb
 .gitlab-ci-local/
+
+# Ignore test-generated reliability matrices
+tests/storage/
