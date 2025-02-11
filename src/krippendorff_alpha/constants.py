@@ -8,7 +8,7 @@ os.makedirs(STORAGE_DIR, exist_ok=True)
 PICKLE_STORAGE_PATH = os.path.join(STORAGE_DIR, "reliability_matrices.pkl")
 
 # days to keep the pickled files
-DAYS_TO_KEEP = 2
+DAYS_TO_KEEP = 1
 
 ORDINAL_CATEGORIES = [
     # Sentiment & Opinion Scales
