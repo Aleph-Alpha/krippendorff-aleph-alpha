@@ -215,9 +215,13 @@ def convert_ordinal_to_numeric(column: pd.Series) -> pd.Series:
 
     for ordinal_scale in ORDINAL_CATEGORIES:
         if unique_values.issubset(set(ordinal_scale)):
-            return column.map({label: i for i, label in enumerate(ordinal_scale)})
+            mapping = {label: i for i, label in enumerate(ordinal_scale)}
+            ordinal_mappings[column.name] = mapping
+            return column.map(mapping)
 
     mapping = {label: i for i, label in enumerate(sorted(unique_values))}
+    ordinal_mappings[column.name] = mapping
+    print("Ordinal Mappings:", ordinal_mappings)
     return column.map(mapping)
 
 
@@ -236,6 +240,7 @@ def preprocess_data(
     text_col: Optional[str] = None,
     annotator_cols: Optional[List[str]] = None,
     missing_value_strategy: str = "ignore",
+    metric: Optional[str] = None,
 ) -> PreprocessedData:
     if path:
         df = load_data(path)
@@ -262,7 +267,11 @@ def preprocess_data(
 
     annotation_types = {}
     for col in annotator_cols:
-        annotation_type = infer_annotation_type(df[col])
+        if metric:  # Use user-defined type if provided
+            annotation_type = DataTypeEnum(metric)
+        else:
+            annotation_type = infer_annotation_type(df[col])
+
         annotation_types[col] = str(annotation_type)
 
         if annotation_type == DataTypeEnum.ORDINAL:
@@ -274,6 +283,8 @@ def preprocess_data(
         df = df.dropna(subset=annotator_cols)
     elif missing_value_strategy == "fill":
         df[annotator_cols] = df[annotator_cols].fillna(-1)
+    logging.info(f"Final ordinal mappings: {ordinal_mappings}")
+    logging.info(f"Final nominal mappings: {nominal_mappings}")
 
     return PreprocessedData(
         df=df,
