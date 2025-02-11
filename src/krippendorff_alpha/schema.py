@@ -35,4 +35,6 @@ class PreprocessedData(BaseModel):
     df: pd.DataFrame = Field(..., description="Preprocessed Pandas DataFrame ready for analysis.")
     column_mapping: ColumnMapping
     annotation_schema: AnnotationSchema
+    ordinal_mappings: dict
+    nominal_mappings: dict
     model_config = ConfigDict(arbitrary_types_allowed=True)
