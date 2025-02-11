@@ -281,4 +281,6 @@ def preprocess_data(
         annotation_schema=AnnotationSchema(
             annotation_level=annotation_level, data_type=annotation_types, missing_value_strategy=missing_value_strategy
         ),
+        ordinal_mappings=ordinal_mappings if ordinal_mappings else {},
+        nominal_mappings=nominal_mappings if nominal_mappings else {},
     )
