@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 import pandas as pd
 import enum
 
@@ -35,6 +35,6 @@ class PreprocessedData(BaseModel):
     df: pd.DataFrame = Field(..., description="Preprocessed Pandas DataFrame ready for analysis.")
     column_mapping: ColumnMapping
     annotation_schema: AnnotationSchema
-    ordinal_mappings: dict
-    nominal_mappings: dict
+    ordinal_mappings: Dict[str, Any]
+    nominal_mappings: Dict[str, Any]
     model_config = ConfigDict(arbitrary_types_allowed=True)
