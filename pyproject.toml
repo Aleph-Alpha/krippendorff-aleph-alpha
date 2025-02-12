@@ -10,8 +10,6 @@ dependencies = [
     "numpy>=2.2.2",
     "pandas>=2.2.3",
     "pydantic>=2.10.6",
-    "scipy>=1.15.1",
-    "semantic-version>=2.10.0",
 ]
 
 [dependency-groups]
@@ -26,7 +24,6 @@ dev = [
     "pytest-mock>=3.14.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.9.4",
-    "semantic-version>=2.10.0",
     "toml>=0.10.2",
 ]
 
