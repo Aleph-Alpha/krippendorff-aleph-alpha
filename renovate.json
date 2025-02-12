@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":configMigration",
+    ":pinAllExceptPeerDependencies"
+  ],
+  "internalChecksFilter": "strict",
+  "lockFileMaintenance": {
+    "automerge": true,
+    "enabled": true
+  },
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "automerge": true,
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "enabled": false,
+      "matchDepNames": [
+        "python"
+      ]
+    },
+    {
+      "enabled": false,
+      "matchDepNames": [
+        "harbor.al-gts.internal/**"
+      ]
+    },
+    {
+      "groupName": "pytest",
+      "matchPackageNames": [
+        "pytest*"
+      ]
+    }
+  ],
+  "prConcurrentLimit": 0,
+  "schedule": [
+    "before 6am"
+  ],
+  "timezone": "Europe/Berlin"
+}
