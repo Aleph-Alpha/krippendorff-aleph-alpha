@@ -2,7 +2,7 @@ import pytest
 import os
 import pandas as pd
 
-from krippendorff_alpha.constants import WORD_COLUMN_ALIASES, TEXT_COLUMN_ALIASES
+from src.krippendorff_alpha.constants import WORD_COLUMN_ALIASES, TEXT_COLUMN_ALIASES
 from src.krippendorff_alpha.reliability import compute_reliability_matrix
 from src.krippendorff_alpha.preprocessing import preprocess_data
 

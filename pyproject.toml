@@ -33,11 +33,11 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
-lint = "utils:run_ruff"
-format = "utils:run_format"
-test = "utils:run_pytest"
-typecheck = "utils:run_mypy"
-all = "utils:run_all"
+lint = "krippendorff_alpha.task:run_ruff"
+format = "krippendorff_alpha.task:run_format"
+test = "krippendorff_alpha.task:run_pytest"
+typecheck = "krippendorff_alpha.task:run_mypy"
+all = "krippendorff_alpha.task:run_all"
 
 [tool.mypy]
 files = "src,tests"
