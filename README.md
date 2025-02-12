@@ -1,6 +1,6 @@
 # Krippendorff's Aleph Alpha
 
-🚧 Project in Progress 🚧
+🚧 Project in Review 🚧
 
 This repository contains an implementation of Krippendorff’s Alpha, a statistical measure of inter-rater reliability designed for various data types (Nominal, Ordinal, Interval, and Ratio). The goal is to support multiple data formats (CSV, JSON, Pandas DataFrames), efficient computations, and dynamic updates for annotators.
 
@@ -60,7 +60,7 @@ The project is structured to ensure **modularity, scalability, and ease of use**
   Central configuration file for computing Krippendorff's Alpha. It handles data loading, preprocessing, reliability matrix updates, and alpha computation.
 
 - **`reliability.py`**  
-  Manages the reliability matrix, including loading, updating, and computing it.
+  Manages the reliability matrix calculation.
 
 - **`preprocessing.py`**  
   Handles data preprocessing for different input formats and annotation levels.
@@ -77,6 +77,9 @@ The project is structured to ensure **modularity, scalability, and ease of use**
 - **`examples/`**  
   Contains example datasets in various formats (**CSV, JSON, TSV**) to demonstrate the usage of Krippendorff's Alpha for different data types (**nominal, ordinal, interval, ratio**).  
   Each dataset is accompanied by a description in the `README.md` file within the directory.
+
+- **`notebooks/`**  
+  Contains usability examples for the code.
 
 -------
 ## Jupyter Notebook (Upcoming)
