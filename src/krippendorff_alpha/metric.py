@@ -30,13 +30,13 @@ def ratio_distance(a: float, b: float) -> float:
 
 def reverse_map(value: int, mapping: Dict[str, Dict[str, int]]) -> Union[str, int]:
     logger.debug(f"Attempting to reverse map value: {value}")
-    for category, label_dict in mapping.items():
+    for _, label_dict in mapping.items():
         for label, num in label_dict.items():
             if num == value:
                 logger.debug(f"Mapped {value} -> {label}")
                 return label
     logger.warning(f"Value {value} not found in mapping.")
-    print(f"Reverse mapping check: {mapping}")
+    logger.debug(f"Reverse mapping check: {mapping}")
     return value
 
 
