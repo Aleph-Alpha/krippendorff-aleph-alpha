@@ -5,7 +5,14 @@ import re
 import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Set
-from src.krippendorff_alpha.schema import ColumnMapping, PreprocessedData, AnnotationSchema, DataTypeEnum
+from src.krippendorff_alpha.schema import (
+    ColumnMapping,
+    PreprocessedData,
+    AnnotationSchema,
+    DataTypeEnum,
+    AnnotationLevelEnum,
+    MissingValueStrategyEnum,
+)
 from src.krippendorff_alpha.constants import (
     ORDINAL_CATEGORIES,
     TEXT_COLUMN_ALIASES,
@@ -272,7 +279,7 @@ def preprocess_data(
         else:
             annotation_type = infer_annotation_type(df[col])
 
-        annotation_types[col] = str(annotation_type)
+        annotation_types[col] = annotation_type
 
         if annotation_type == DataTypeEnum.ORDINAL:
             df[col] = convert_ordinal_to_numeric(df[col])
@@ -290,7 +297,9 @@ def preprocess_data(
         df=df,
         column_mapping=ColumnMapping(text_col=text_col, annotator_cols=annotator_cols),
         annotation_schema=AnnotationSchema(
-            annotation_level=annotation_level, data_type=annotation_types, missing_value_strategy=missing_value_strategy
+            annotation_level=AnnotationLevelEnum(annotation_level),
+            data_type=annotation_types,
+            missing_value_strategy=MissingValueStrategyEnum(missing_value_strategy),
         ),
         ordinal_mappings=ordinal_mappings if ordinal_mappings else {},
         nominal_mappings=nominal_mappings if nominal_mappings else {},

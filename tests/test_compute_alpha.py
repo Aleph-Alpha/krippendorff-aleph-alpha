@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from typing import List, Tuple, Dict, Any
 from src.krippendorff_alpha.compute_alpha import compute_alpha
+from src.krippendorff_alpha.schema import DataTypeEnum
 
 
 def test_compute_alpha_with_path(example_data: str, datasets: List[Tuple[str, str]]) -> None:
@@ -40,7 +41,10 @@ def test_compute_alpha_with_dataframe() -> None:
     print(df)
 
     result: Dict[str, Any] = compute_alpha(
-        df=df, text_col="text", annotator_cols=["annotator_1", "annotator_2", "annotator_3"], metric="ordinal"
+        df=df,
+        text_col="text",
+        annotator_cols=["annotator_1", "annotator_2", "annotator_3"],
+        metric=DataTypeEnum.ORDINAL,  # Use the Enum instead of a string
     )
 
     print(f"Computed Alpha for DataFrame: {result['alpha']}")

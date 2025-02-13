@@ -4,12 +4,18 @@ import pandas as pd
 from src.krippendorff_alpha.metric import krippendorff_alpha, parse_annotator_name
 from src.krippendorff_alpha.preprocessing import preprocess_data
 from src.krippendorff_alpha.reliability import compute_reliability_matrix
+from src.krippendorff_alpha.schema import DataTypeEnum
 
 
-def test_krippendorff_alpha(datasets: List[Tuple[str, str]], example_data: str) -> None:
+def test_krippendorff_alpha(datasets: List[Tuple[str, DataTypeEnum]], example_data: str) -> None:
     for filename, metric in datasets:
+        if isinstance(metric, str):
+            print(f"DEBUG: Converting '{metric}' to DataTypeEnum")  # Debugging
+            metric = DataTypeEnum[metric.upper()]  # Convert string to Enum
+
+        print(f"\nProcessing dataset: {filename} with metric: {metric.value}")
         file_path = f"{example_data}/{filename}"
-        print(f"\nProcessing dataset: {filename} with metric: {metric}")
+        print(f"\nProcessing dataset: {filename} with metric: {metric.value}")
 
         preprocessed = preprocess_data(file_path)
         df: pd.DataFrame = preprocessed.df
@@ -53,7 +59,7 @@ def test_krippendorff_alpha(datasets: List[Tuple[str, str]], example_data: str) 
             assert "expected_disagreement" in scores, f"Missing expected disagreement for category {category}"
 
 
-def test_krippendorff_alpha_with_weights(datasets: List[Tuple[str, str]], example_data: str) -> None:
+def test_krippendorff_alpha_with_weights(datasets: List[Tuple[str, DataTypeEnum]], example_data: str) -> None:
     for filename, metric in datasets:
         file_path = f"{example_data}/{filename}"
 

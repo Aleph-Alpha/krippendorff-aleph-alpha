@@ -8,6 +8,17 @@ logging.basicConfig(level=logging.INFO)
 
 
 def compute_reliability_matrix(df: pd.DataFrame, column_mapping: ColumnMapping) -> pd.DataFrame:
+    """
+    Computes the reliability matrix for the given DataFrame and column mapping.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing the data.
+    column_mapping (ColumnMapping): The mapping of columns including annotator columns.
+
+    Returns:
+    pd.DataFrame: The transposed reliability matrix with annotator columns as rows and text/word indices as columns.
+    """
+
     logging.info("Starting computation of reliability matrix.")
     annotator_cols = column_mapping.annotator_cols
 

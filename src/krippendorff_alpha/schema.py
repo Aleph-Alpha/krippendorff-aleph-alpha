@@ -23,12 +23,25 @@ class DataTypeEnum(str, enum.Enum):
     RATIO = "ratio"
 
 
+class MissingValueStrategyEnum(str, enum.Enum):
+    IGNORE = "ignore"
+    DROP = "drop"
+    FILL = "fill"
+
+
+class AnnotationLevelEnum(str, enum.Enum):
+    SENTENCE_LEVEL = "sentence_level"
+    TOKEN_LEVEL = "token_level"
+
+
 class AnnotationSchema(BaseModel):
-    data_type: Dict[str, str] = Field(
+    data_type: Dict[str, DataTypeEnum] = Field(
         ..., description="Type of annotation per annotator column: nominal, ordinal, interval, or ratio."
     )
-    missing_value_strategy: str = Field("ignore", description="Strategy to handle missing values (ignore, drop, fill).")
-    annotation_level: str = Field(..., description="Annotation level: sentence_level or token_level.")
+    missing_value_strategy: MissingValueStrategyEnum = Field(
+        MissingValueStrategyEnum.IGNORE, description="Strategy to handle missing values (ignore, drop, fill)."
+    )
+    annotation_level: AnnotationLevelEnum = Field(..., description="Annotation level: sentence_level or token_level.")
 
 
 class PreprocessedData(BaseModel):
