@@ -31,7 +31,7 @@ class MissingValueStrategyEnum(str, enum.Enum):
 
 class AnnotationLevelEnum(str, enum.Enum):
     SENTENCE_LEVEL = "sentence_level"
-    TOKEN_LEVEL = "token_level"
+    TOKEN_LEVEL = "token_level" # nosec
 
 
 class AnnotationSchema(BaseModel):
