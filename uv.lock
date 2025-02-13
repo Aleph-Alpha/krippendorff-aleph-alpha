@@ -160,10 +160,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "numpy", specifier = ">=2.2.2" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "pydantic", specifier = ">=2.10.6" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20241230" },
+    { name = "numpy", specifier = "==2.2.2" },
+    { name = "pandas", specifier = "==2.2.3" },
+    { name = "pydantic", specifier = "==2.10.6" },
+    { name = "types-pyyaml", specifier = "==6.0.12.20241230" },
 ]
 
 [package.metadata.requires-dev]
