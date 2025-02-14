@@ -104,7 +104,6 @@ class InputData(BaseModel):
         return value
 
     def to_dataframe(self) -> pd.DataFrame:
-        """Return the structured Pandas DataFrame."""
         return self.df
 
 

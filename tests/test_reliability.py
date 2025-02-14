@@ -1,4 +1,3 @@
-import pandas as pd
 import logging
 from src.krippendorff_alpha.schema import (
     ColumnMapping,
@@ -10,24 +9,14 @@ from src.krippendorff_alpha.preprocessing import preprocess_data
 logging.basicConfig(level=logging.INFO)
 
 
-def test_compute_reliability_matrix():
-    # Create a sample DataFrame
-    data = {
-        "text": ["Hello world", "Goodbye world", "It is sunny"],
-        "annotator1": ["positive", "negative", "positive"],
-        "annotator2": ["negative", "positive", "negative"],
-        "annotator3": ["positive", "negative", "positive"],
-    }
-    df = pd.DataFrame(data)
-
-    # Define annotation schema
+def test_compute_reliability_matrix(df_nominal):
 
     annotation_schema = AnnotationSchema(
         data_type="nominal", annotation_level="text_level", missing_value_strategy="ignore"
     )
 
     # Preprocess data (auto-detects text column and annotator columns)
-    preprocessed_data, detected_text_col = preprocess_data(df, ColumnMapping(), annotation_schema)
+    preprocessed_data, detected_text_col = preprocess_data(df_nominal, ColumnMapping(), annotation_schema)
 
     # Print preprocessed DataFrame
     print("Preprocessed DataFrame:")
