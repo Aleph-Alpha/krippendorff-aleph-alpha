@@ -2,13 +2,13 @@ import pandas as pd
 import logging
 from typing import Dict, Optional, List, Tuple
 
-from src.krippendorff_alpha.constants import (
+from krippendorff_alpha.constants import (
     TEXT_COLUMN_ALIASES,
     WORD_COLUMN_ALIASES,
     ORDINAL_CATEGORIES,
     ANNOTATOR_REGEX,
 )
-from src.krippendorff_alpha.schema import (
+from krippendorff_alpha.schema import (
     ColumnMapping,
     PreprocessedData,
     AnnotationSchema,

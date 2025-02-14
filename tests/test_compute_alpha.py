@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from src.krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
-from src.krippendorff_alpha.compute_alpha import compute_alpha
+from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
+from krippendorff_alpha.compute_alpha import compute_alpha
 
 
 def test_compute_alpha_nominal(df_nominal: pd.DataFrame) -> None:

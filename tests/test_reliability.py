@@ -2,12 +2,12 @@ import logging
 
 import pandas as pd
 
-from src.krippendorff_alpha.schema import (
+from krippendorff_alpha.schema import (
     ColumnMapping,
     AnnotationSchema,
 )
-from src.krippendorff_alpha.reliability import compute_reliability_matrix
-from src.krippendorff_alpha.preprocessing import preprocess_data
+from krippendorff_alpha.reliability import compute_reliability_matrix
+from krippendorff_alpha.preprocessing import preprocess_data
 
 logging.basicConfig(level=logging.INFO)
 

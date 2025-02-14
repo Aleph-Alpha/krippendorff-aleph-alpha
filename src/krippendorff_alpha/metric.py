@@ -4,7 +4,7 @@ import logging
 from typing import Optional, Dict, Any, Union, List, Tuple, Callable
 
 from krippendorff_alpha.schema import DataTypeEnum
-from src.krippendorff_alpha.constants import ANNOTATOR_REGEX
+from krippendorff_alpha.constants import ANNOTATOR_REGEX
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

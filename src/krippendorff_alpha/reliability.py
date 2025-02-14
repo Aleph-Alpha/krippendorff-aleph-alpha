@@ -1,9 +1,9 @@
 import pandas as pd
 import logging
 from typing import Optional
-from src.krippendorff_alpha.schema import ColumnMapping
-from src.krippendorff_alpha.preprocessing import detect_annotator_columns, detect_column
-from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
+from krippendorff_alpha.schema import ColumnMapping
+from krippendorff_alpha.preprocessing import detect_annotator_columns, detect_column
+from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
 
 logging.basicConfig(level=logging.INFO)
 

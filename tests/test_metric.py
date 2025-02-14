@@ -1,9 +1,9 @@
 import pandas as pd
 
-from src.krippendorff_alpha.preprocessing import preprocess_data
-from src.krippendorff_alpha.reliability import compute_reliability_matrix
-from src.krippendorff_alpha.schema import AnnotationSchema, ColumnMapping
-from src.krippendorff_alpha.metric import krippendorff_alpha
+from krippendorff_alpha.preprocessing import preprocess_data
+from krippendorff_alpha.reliability import compute_reliability_matrix
+from krippendorff_alpha.schema import AnnotationSchema, ColumnMapping
+from krippendorff_alpha.metric import krippendorff_alpha
 
 
 def test_krippendorff_alpha(df_nominal: pd.DataFrame) -> None:

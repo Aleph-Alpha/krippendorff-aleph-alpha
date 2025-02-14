@@ -1,7 +1,7 @@
 import pandas as pd
-from src.krippendorff_alpha.preprocessing import preprocess_data, detect_column
-from src.krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
-from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASES
+from krippendorff_alpha.preprocessing import preprocess_data, detect_column
+from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
+from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASES
 
 
 def test_detect_column() -> None:
