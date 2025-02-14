@@ -2,3 +2,19 @@ Text,Annotator 1,Annotator 2,Annotator 3,Annotator 4,Annotator 5
 "This movie is ok.",Neutral,Positive,Neutral,Neutral,Positive
 "Absolutely loved it!",Very Positive,Positive,Very Positive,Very Positive,Positive
 "Horrible experience.",Very Negative,Negative,Very Negative,Negative,Negative
+"Not bad, could be better.",Neutral,Neutral,Neutral,Neutral,Neutral
+"Amazing storytelling!",Very Positive,Very Positive,Positive,Very Positive,Very Positive
+"The worst acting I have ever seen.",Very Negative,Negative,Negative,Very Negative,Negative
+"It was an average performance.",Neutral,Neutral,Neutral,Neutral,Neutral
+"One of the best films this year!",Very Positive,Very Positive,Very Positive,Positive,Very Positive
+"Terrible plot and bad execution.",Very Negative,Negative,Negative,Very Negative,Very Negative
+"Decent watch, but nothing special.",Neutral,Neutral,Neutral,Neutral,Neutral
+"Loved every second of it!",Very Positive,Very Positive,Very Positive,Very Positive,Very Positive
+"A huge disappointment.",Very Negative,Negative,Negative,Very Negative,Negative
+"Surprisingly good!",Positive,Positive,Neutral,Positive,Positive
+"Extremely boring and slow-paced.",Very Negative,Negative,Negative,Very Negative,Negative
+"Would definitely recommend!",Very Positive,Very Positive,Positive,Very Positive,Very Positive
+"Not worth the hype.",Negative,Neutral,Negative,Negative,Neutral
+"An emotional rollercoaster!",Very Positive,Very Positive,Very Positive,Positive,Very Positive
+"Painfully predictable.",Negative,Negative,Negative,Negative,Negative
+"Outstanding cinematography!",Very Positive,Positive,Very Positive,Very Positive,Very Positive

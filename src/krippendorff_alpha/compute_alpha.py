@@ -1,17 +1,16 @@
 from typing import Optional, Any, Dict
-
 import pandas as pd
-
 from krippendorff_alpha.metric import krippendorff_alpha
 from krippendorff_alpha.preprocessing import preprocess_data
 from krippendorff_alpha.reliability import compute_reliability_matrix
-from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
+from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema, AnnotationLevelEnum
 
 
 def compute_alpha(
     df: pd.DataFrame,
+    data_type: str,
     column_mapping: Optional[ColumnMapping] = None,
-    annotation_schema: Optional[AnnotationSchema] = None,
+    annotation_level: str = AnnotationLevelEnum.TEXT_LEVEL,
     weight_dict: Optional[Dict[str, float]] = None,
     ordinal_scale: Optional[Dict[str, float]] = None,
 ) -> Any:
@@ -20,41 +19,55 @@ def compute_alpha(
 
     Parameters:
     - df (pd.DataFrame): The dataframe containing annotation data.
-    - column_mapping (Optional[ColumnMapping]): A mapping specifying which columns correspond to annotators and annotations.
-    - annotation_schema (Optional[AnnotationSchema]): The schema defining the annotation type (nominal, ordinal, etc.).
+    - data_type (str): The type of annotation data (e.g., "nominal" or "ordinal").
+    - column_mapping (Optional[ColumnMapping]): Specifies which columns correspond to annotators and text.
+      If None, it will be inferred automatically.
+    - annotation_level (str, default="text_level"): The level of annotation (e.g., "text_level", "token_level").
     - weight_dict (Optional[Dict[str, float]]): A dictionary specifying weights for individual annotators (if applicable).
     - ordinal_scale (Optional[Dict[str, float]]): A dictionary defining an ordinal scale if the data type is ordinal.
 
     Returns:
     - Any: A dictionary containing Krippendorff's alpha, observed and expected disagreement, and per-category scores.
-
-    Raises:
-    - ValueError: If df, column_mapping, or annotation_schema are not provided.
     """
-    if df is None or column_mapping is None or annotation_schema is None:
-        raise ValueError("df, column_mapping, and annotation_schema must be provided.")
 
+    if df is None:
+        raise ValueError("A valid DataFrame (df) must be provided.")
+
+    if column_mapping is None:
+        column_mapping = ColumnMapping()
+
+    # Create annotation schema with user-defined `data_type` and default `annotation_level`
+    annotation_schema = AnnotationSchema(
+        data_type=data_type,
+        annotation_level=annotation_level,
+    )
+
+    # Let `preprocess_data` handle column mapping inference
     preprocessed_data, text_col = preprocess_data(df, column_mapping, annotation_schema)
 
+    # Convert mappings to string keys (for compatibility)
     if preprocessed_data.nominal_mappings:
         preprocessed_data.nominal_mappings = {str(k): v for k, v in preprocessed_data.nominal_mappings.items()}
 
     if preprocessed_data.ordinal_mappings:
         preprocessed_data.ordinal_mappings = {str(k): v for k, v in preprocessed_data.ordinal_mappings.items()}
 
-    # Extract the appropriate mapping based on the data type
-    if annotation_schema.data_type == "nominal":
-        mapping = preprocessed_data.nominal_mappings
-    elif annotation_schema.data_type == "ordinal":
-        mapping = preprocessed_data.ordinal_mappings
-    else:
-        mapping = None
+    # Select appropriate mapping
+    mapping = (
+        preprocessed_data.nominal_mappings
+        if preprocessed_data.annotation_schema.data_type == "nominal"
+        else preprocessed_data.ordinal_mappings
+        if preprocessed_data.annotation_schema.data_type == "ordinal"
+        else None
+    )
 
-    reliability_matrix = compute_reliability_matrix(preprocessed_data.df, column_mapping, text_col)
+    # Compute reliability matrix
+    reliability_matrix = compute_reliability_matrix(preprocessed_data.df, preprocessed_data.column_mapping, text_col)
 
+    # Compute Krippendorff's alpha
     results = krippendorff_alpha(
         reliability_matrix,
-        data_type=annotation_schema.data_type,
+        data_type=preprocessed_data.annotation_schema.data_type,
         mapping=mapping,
         weight_dict=weight_dict,
         ordinal_scale=ordinal_scale,

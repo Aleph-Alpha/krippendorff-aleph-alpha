@@ -27,7 +27,6 @@ dmypy.json
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
 .gitlab-ci-local/
 
 # Ignore test-generated reliability matrices

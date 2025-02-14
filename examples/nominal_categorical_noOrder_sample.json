@@ -30,5 +30,40 @@
       {"word": "the", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
       {"word": "store", "annotator_1": "O", "annotator_2": "B-LOC", "annotator_3": "O"}
     ]
+  },
+  {
+    "text": "Google was founded in 1998.",
+    "annotations": [
+      {"word": "Google", "annotator_1": "B-ORG", "annotator_2": "B-ORG", "annotator_3": "B-ORG"},
+      {"word": "was", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "founded", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "in", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "1998", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"}
+    ]
+  },
+  {
+    "text": "Elon Musk is the CEO of Tesla.",
+    "annotations": [
+      {"word": "Elon", "annotator_1": "B-PERSON", "annotator_2": "B-PERSON", "annotator_3": "B-PERSON"},
+      {"word": "Musk", "annotator_1": "I-PERSON", "annotator_2": "I-PERSON", "annotator_3": "I-PERSON"},
+      {"word": "is", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "the", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "CEO", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "of", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "Tesla", "annotator_1": "B-ORG", "annotator_2": "B-ORG", "annotator_3": "B-ORG"},
+      {"word": ".", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"}
+    ]
+  },
+  {
+    "text": "Paris is the capital of France.",
+    "annotations": [
+      {"word": "Paris", "annotator_1": "B-LOC", "annotator_2": "B-LOC", "annotator_3": "B-LOC"},
+      {"word": "is", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "the", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "capital", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "of", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"},
+      {"word": "France", "annotator_1": "B-LOC", "annotator_2": "B-LOC", "annotator_3": "B-LOC"},
+      {"word": ".", "annotator_1": "O", "annotator_2": "O", "annotator_3": "O"}
+    ]
   }
 ]

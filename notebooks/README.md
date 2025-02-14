@@ -24,7 +24,7 @@ uv sync
 
 ## How to Use
 
-### 1️⃣ Open the Notebook
+###  Open the Notebook
 
 Launch Jupyter Notebook in the project root:
 
@@ -32,52 +32,51 @@ Launch Jupyter Notebook in the project root:
 jupyter notebook notebooks/krippendorff_alpha_demo.ipynb
 
 ```
+----
+### Setting Up Jupyter for This Project
 
-### 2️⃣ Import the Necessary Functions
+If you encounter issues running the notebooks (e.g., missing modules), follow these steps to set up Jupyter with the correct Python environment.
 
-The notebook will automatically import:
+### Step 1: Install Jupyter in Your Project Environment
 
-```bash
-from src.krippendorff_alpha.config import compute_alpha
-```
-
-### 3️⃣ Load Your Data
-
-You can either provide a dataset file path or manually create a pandas.DataFrame.
-Refer to the examples directory to get more information on supported examples.
-
-Examples:
-```bash
-results = compute_alpha(path="examples/nominal_categorical_noOrder_sample.json"
-```
-
-or in-memory dataframe:
+Run the following in your project's terminal:
 
 ```bash
+uv pip install jupyter ipykernel
 
-import pandas as pd
-
-df = pd.DataFrame({
-    "word": ["apple", "banana", "cherry"],
-    "annotator1": ["red", "yellow", "red"],
-    "annotator2": ["red", "yellow", "red"],
-    "annotator3": ["green", "yellow", "red"],
-})
-
-results = compute_alpha(df=df, text_col="word", annotator_cols=["annotator1", "annotator2", "annotator3"])
 ```
 
-### 4️⃣ Analyze the Results
+### Step 2: Add Your Project’s Python as a Jupyter Kernel
 
-The notebook will print results like:
+Run:
+```bash
+python -m ipykernel install --user --name=krippendorff-aleph-alpha --display-name "Python (krippendorff)"
 
-    {
-        "alpha": 0.85,
-        "observed_disagreement": 0.12,
-        "expected_disagreement": 0.80,
-        "per_category_scores": {
-            "red": {"observed_disagreement": 0.1, "expected_disagreement": 0.5},
-            "yellow": {"observed_disagreement": 0.0, "expected_disagreement": 0.1},
-        }
-    }
+```
 
+### Step 3: Restart Jupyter and Select the Correct Kernel
+
+1. Restart Jupyter:
+
+```bash
+
+jupyter lab  # Or jupyter notebook
+
+```
+2. Open your notebook (annotation_evaluation.ipynb).
+
+3. Go to Kernel → Change Kernel.
+
+4. Select "Python (krippendorff)" (the one you just installed).
+
+
+### Step 4: Verify the Fix
+
+In your Jupyter notebook, run:
+
+```bash
+
+import sys
+print(sys.executable)
+
+```
