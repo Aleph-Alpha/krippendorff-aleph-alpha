@@ -1,8 +1,9 @@
 import pytest
 import pandas as pd
 
+
 @pytest.fixture
-def df_nominal():
+def df_nominal() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "text": ["Hello world", "Goodbye world", "It is sunny"],
@@ -12,13 +13,14 @@ def df_nominal():
         }
     )
 
+
 @pytest.fixture
-def df_ordinal():
+def df_ordinal() -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "text": ["it is very cold", "it is warm"],
-            "annotator1": ["low", "medium"],
-            "annotator2": ["low", "high"],
-            "annotator3": ["medium", "very high"],
+            "text": ["it is very cold", "it is warm", "it is hot"],
+            "annotator1": ["low", "medium", "high"],
+            "annotator2": ["low", "high", "very high"],
+            "annotator3": ["medium", "very high", "very high"],
         }
     )

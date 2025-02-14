@@ -1,10 +1,10 @@
 import pandas as pd
-
 from src.krippendorff_alpha.preprocessing import preprocess_data, detect_column
 from src.krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
 from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASES
 
-def test_detect_column():
+
+def test_detect_column() -> None:
     df = pd.DataFrame(
         {
             "Text": ["Sample sentence 1", "Sample sentence 2"],
@@ -16,7 +16,7 @@ def test_detect_column():
     assert detect_column(df, WORD_COLUMN_ALIASES) is None  # No match
 
 
-def test_preprocess_data_nominal(df_nominal):
+def test_preprocess_data_nominal(df_nominal: pd.DataFrame) -> None:
     column_mapping = ColumnMapping(text_col=None, annotator_cols=["annotator1", "annotator2", "annotator3"])
 
     annotation_schema = AnnotationSchema(
@@ -36,7 +36,7 @@ def test_preprocess_data_nominal(df_nominal):
     assert set(preprocessed_data.df.columns) == set(df_nominal.columns)
 
 
-def test_preprocess_data_ordinal(df_ordinal):
+def test_preprocess_data_ordinal(df_ordinal: pd.DataFrame) -> None:
     column_mapping = ColumnMapping(text_col=None, annotator_cols=["annotator1", "annotator2", "annotator3"])
 
     annotation_schema = AnnotationSchema(

@@ -4,6 +4,10 @@ import pandas as pd
 import enum
 
 
+class Config:
+    arbitrary_types_allowed = True
+
+
 class DataTypeEnum(str, enum.Enum):
     NOMINAL = "nominal"
     ORDINAL = "ordinal"
@@ -30,7 +34,7 @@ class ColumnMapping(BaseModel):
 
     @field_validator("annotator_cols", mode="before")
     @classmethod
-    def validate_annotator_cols(cls, v):
+    def validate_annotator_cols(cls, v: Optional[Union[List[str], str]]) -> Optional[List[str]]:
         if v is None:
             return None  # Allow None for later inference
 
@@ -56,7 +60,7 @@ class AnnotationSchema(BaseModel):
 
     @field_validator("data_type", mode="before")
     @classmethod
-    def validate_data_type(cls, v):
+    def validate_data_type(cls, v: Union[str, DataTypeEnum]) -> DataTypeEnum:
         if isinstance(v, DataTypeEnum):
             return v  # Already an enum, return as is
         try:
@@ -66,7 +70,7 @@ class AnnotationSchema(BaseModel):
 
     @field_validator("missing_value_strategy", mode="before")
     @classmethod
-    def validate_missing_value_strategy(cls, v):
+    def validate_missing_value_strategy(cls, v: Union[str, MissingValueStrategyEnum]) -> MissingValueStrategyEnum:
         if isinstance(v, MissingValueStrategyEnum):
             return v
         try:
@@ -76,7 +80,7 @@ class AnnotationSchema(BaseModel):
 
     @field_validator("annotation_level", mode="before")
     @classmethod
-    def validate_annotation_level(cls, v):
+    def validate_annotation_level(cls, v: Union[str, AnnotationLevelEnum]) -> AnnotationLevelEnum:
         if isinstance(v, AnnotationLevelEnum):
             return v
         try:
@@ -85,8 +89,7 @@ class AnnotationSchema(BaseModel):
             raise ValueError(f"Invalid annotation_level: {v}. Must be one of {list(AnnotationLevelEnum)}.")
 
     def get_data_type_mapping(self, annotator_cols: List[str]) -> Dict[str, DataTypeEnum]:
-        """Generate a dictionary mapping each annotator column to the specified data type."""
-        return {col: self.data_type for col in annotator_cols}
+        return {col: DataTypeEnum(self.data_type) for col in annotator_cols}  # Convert to Enum explicitly
 
 
 class InputData(BaseModel):
@@ -98,7 +101,7 @@ class InputData(BaseModel):
 
     @field_validator("df", mode="before")
     @classmethod
-    def validate_dataframe_format(cls, value):
+    def validate_dataframe_format(cls, value: Any) -> pd.DataFrame:
         if not isinstance(value, pd.DataFrame):
             raise ValueError("Input must be a Pandas DataFrame.")
         return value

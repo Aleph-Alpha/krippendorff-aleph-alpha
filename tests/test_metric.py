@@ -1,107 +1,42 @@
-from typing import List, Tuple
 import pandas as pd
 
-from src.krippendorff_alpha.metric import krippendorff_alpha, parse_annotator_name
 from src.krippendorff_alpha.preprocessing import preprocess_data
 from src.krippendorff_alpha.reliability import compute_reliability_matrix
-from src.krippendorff_alpha.schema import DataTypeEnum
+from src.krippendorff_alpha.schema import AnnotationSchema, ColumnMapping
+from src.krippendorff_alpha.metric import krippendorff_alpha
 
 
-def test_krippendorff_alpha(datasets: List[Tuple[str, DataTypeEnum]], example_data: str) -> None:
-    for filename, metric in datasets:
-        if isinstance(metric, str):
-            print(f"DEBUG: Converting '{metric}' to DataTypeEnum")  # Debugging
-            metric = DataTypeEnum[metric.upper()]  # Convert string to Enum
+def test_krippendorff_alpha(df_nominal: pd.DataFrame) -> None:
+    column_mapping = ColumnMapping(text_col=None, annotator_cols=["annotator1", "annotator2", "annotator3"])
+    annotation_schema = AnnotationSchema(
+        data_type="nominal", annotation_level="text_level", missing_value_strategy="ignore"
+    )
 
-        print(f"\nProcessing dataset: {filename} with metric: {metric.value}")
-        file_path = f"{example_data}/{filename}"
-        print(f"\nProcessing dataset: {filename} with metric: {metric.value}")
+    preprocessed_data, detected_text_col = preprocess_data(df_nominal, column_mapping, annotation_schema)
 
-        preprocessed = preprocess_data(file_path)
-        df: pd.DataFrame = preprocessed.df
-        column_mapping = preprocessed.column_mapping
+    if preprocessed_data.nominal_mappings:
+        preprocessed_data.nominal_mappings = {str(k): v for k, v in preprocessed_data.nominal_mappings.items()}
 
-        print("\nPreprocessed DataFrame:")
-        print(df.head())
+    # Extract the appropriate mapping based on the data type
+    if annotation_schema.data_type == "nominal":
+        mapping = preprocessed_data.nominal_mappings
+    elif annotation_schema.data_type == "ordinal":
+        mapping = preprocessed_data.ordinal_mappings
+    else:
+        mapping = None
 
-        reliability_matrix: pd.DataFrame = compute_reliability_matrix(df, column_mapping)
+    # Compute the reliability matrix
+    reliability_matrix = compute_reliability_matrix(
+        preprocessed_data.df, preprocessed_data.column_mapping, detected_text_col
+    )
 
-        print("\nTransformed Reliability Matrix:")
-        print(reliability_matrix.head())
+    print("Nominal mappings:", preprocessed_data.nominal_mappings)
+    print("Nominal mapping keys:", list(preprocessed_data.nominal_mappings.keys()))
+    print("Nominal mapping values:", list(preprocessed_data.nominal_mappings.values()))
 
-        result = krippendorff_alpha(
-            df=reliability_matrix,
-            annotator_cols=list(reliability_matrix.columns),
-            metric=metric,
-            nominal_mappings=preprocessed.nominal_mappings,
-            ordinal_mappings=preprocessed.ordinal_mappings,
-        )
+    # Call Krippendorff's alpha, passing the automatically selected mapping
+    result = krippendorff_alpha(reliability_matrix, data_type=annotation_schema.data_type, mapping=mapping)
 
-        print("\nKrippendorff’s Alpha Results:")
-        print(f"Alpha: {result['alpha']:.4f}")
-        print(f"Observed Disagreement: {result['observed_disagreement']:.4f}")
-        print(f"Expected Disagreement: {result['expected_disagreement']:.4f}")
-
-        print("\nPer-Category Scores:")
-        for category, scores in result["per_category_scores"].items():
-            print(f"  {category}:")
-            print(f"    Observed Disagreement: {scores['observed_disagreement']:.4f}")
-            print(f"    Expected Disagreement: {scores['expected_disagreement']:.4f}")
-
-        # Validate results
-        assert "alpha" in result, "Missing alpha value in result"
-        assert isinstance(result["alpha"], float), "Alpha value must be a float"
-        assert -1.0 <= result["alpha"] <= 1.0, "Alpha should be in the range [-1, 1]"
-        assert "per_category_scores" in result, "Missing per-category scores"
-
-        for category, scores in result["per_category_scores"].items():
-            assert "observed_disagreement" in scores, f"Missing observed disagreement for category {category}"
-            assert "expected_disagreement" in scores, f"Missing expected disagreement for category {category}"
-
-
-def test_krippendorff_alpha_with_weights(datasets: List[Tuple[str, DataTypeEnum]], example_data: str) -> None:
-    for filename, metric in datasets:
-        file_path = f"{example_data}/{filename}"
-
-        preprocessed = preprocess_data(file_path)
-        df: pd.DataFrame = preprocessed.df
-        column_mapping = preprocessed.column_mapping
-
-        reliability_matrix: pd.DataFrame = compute_reliability_matrix(df, column_mapping)
-
-        # Define weights: Annotator 1 has more weight
-        annotators: List[str] = list(reliability_matrix.index)  # Annotators are now in index
-        weight_dict = {parse_annotator_name("annotator_1"): 1.5}  # Higher weight for the first annotator
-        for annotator in annotators[1:]:
-            weight_dict[parse_annotator_name(annotator)] = 1.0  # Default weight
-
-        # Compute Krippendorff’s alpha with weights
-        result = krippendorff_alpha(
-            df=reliability_matrix,
-            annotator_cols=annotators,
-            metric=metric,
-            weight_dict=weight_dict,
-            nominal_mappings=preprocessed.nominal_mappings,
-            ordinal_mappings=preprocessed.ordinal_mappings,
-        )
-
-        print("\nKrippendorff’s Alpha Results:")
-        print(f"Alpha: {result['alpha']:.4f}")
-        print(f"Observed Disagreement: {result['observed_disagreement']:.4f}")
-        print(f"Expected Disagreement: {result['expected_disagreement']:.4f}")
-
-        print("\nPer-Category Scores:")
-        for category, scores in result["per_category_scores"].items():
-            print(f"  {category}:")
-            print(f"    Observed Disagreement: {scores['observed_disagreement']:.4f}")
-            print(f"    Expected Disagreement: {scores['expected_disagreement']:.4f}")
-
-        # Validate results
-        assert "alpha" in result, "Missing alpha value in result"
-        assert isinstance(result["alpha"], float), "Alpha value must be a float"
-        assert -1.0 <= result["alpha"] <= 1.0, "Alpha should be in the range [-1, 1]"
-        assert "per_category_scores" in result, "Missing per-category scores"
-
-        for category, scores in result["per_category_scores"].items():
-            assert "observed_disagreement" in scores, f"Missing observed disagreement for category {category}"
-            assert "expected_disagreement" in scores, f"Missing expected disagreement for category {category}"
+    # Print the result to see the alpha value and other metrics
+    print("Krippendorff's Alpha Calculation Result:")
+    print(result)

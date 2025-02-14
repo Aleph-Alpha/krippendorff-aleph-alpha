@@ -20,7 +20,7 @@ from src.krippendorff_alpha.schema import (
 logging.basicConfig(level=logging.INFO)
 
 
-def detect_column(df: pd.DataFrame, column_aliases: set) -> Optional[str]:
+def detect_column(df: pd.DataFrame, column_aliases: set[str]) -> Optional[str]:
     matches = [col for col in df.columns if col.lower().strip() in {name.lower() for name in column_aliases}]
     return matches[0] if matches else None
 
@@ -35,21 +35,21 @@ def create_global_mapping(df: pd.DataFrame, annotator_cols: List[str], data_type
     for col in annotator_cols:
         unique_values.update(df[col].dropna().unique())
 
-    unique_values = sorted(unique_values, key=str)  # Default sorted order
+    sorted_unique_values = list(sorted(unique_values, key=str))  # Default sorted order
 
     if data_type == DataTypeEnum.ORDINAL:
         # Normalize dataset labels (lowercase for comparison)
-        normalized_labels = {label.lower(): label for label in unique_values}
+        normalized_labels = {label.lower(): label for label in sorted_unique_values}
         dataset_labels_lower = set(normalized_labels.keys())
 
         # Find the best matching predefined ordinal scale
         for ordinal_scale in ORDINAL_CATEGORIES:
             ordinal_scale_lower = [label.lower() for label in ordinal_scale]
             if dataset_labels_lower.issubset(set(ordinal_scale_lower)):
-                return {label: ordinal_scale_lower.index(label.lower()) for label in unique_values}
+                return {label: ordinal_scale_lower.index(label.lower()) for label in sorted_unique_values}
 
     # Fallback: Default to sorted order if no match is found
-    return {label: i for i, label in enumerate(unique_values)}
+    return {label: i for i, label in enumerate(sorted_unique_values)}
 
 
 def preprocess_data(

@@ -1,23 +1,27 @@
 import numpy as np
 import pandas as pd
 import logging
-from typing import Optional, Dict, Any, Union, List
+from typing import Optional, Dict, Any, Union, List, Tuple, Callable
+
+from krippendorff_alpha.schema import DataTypeEnum
 from src.krippendorff_alpha.constants import ANNOTATOR_REGEX
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def nominal_distance(a: Union[int, float, str], b: Union[int, float, str]) -> int:
-    return 0 if a == b else 1
+def nominal_distance(a: Union[int, float, str], b: Union[int, float, str]) -> float:
+    return float(0 if a == b else 1)
 
 
 def ordinal_distance(
     a: Union[int, float, str], b: Union[int, float, str], scale: Optional[List[Union[int, float, str]]] = None
-) -> int:
+) -> float:
     if scale is None or a not in scale or b not in scale:
-        return nominal_distance(a, b)
-    return (scale.index(a) - scale.index(b)) ** 2
+        return float(nominal_distance(a, b))
+
+    diff = scale.index(a) - scale.index(b)
+    return float(diff**2)
 
 
 def interval_distance(a: float, b: float) -> float:
@@ -25,18 +29,24 @@ def interval_distance(a: float, b: float) -> float:
 
 
 def ratio_distance(a: float, b: float) -> float:
-    return ((a - b) / (a + b)) ** 2 if (a + b) != 0 else 0.0
+    return float(np.divide((a - b) ** 2, (a + b), out=np.zeros_like(a, dtype=float), where=(a + b) != 0).item())
 
 
-def reverse_map(value: int, mapping: Dict[str, Dict[str, int]]) -> Union[str, int]:
-    logger.debug(f"Attempting to reverse map value: {value}")
-    for _, label_dict in mapping.items():
-        for label, num in label_dict.items():
-            if num == value:
-                logger.debug(f"Mapped {value} -> {label}")
-                return label
-    logger.warning(f"Value {value} not found in mapping.")
-    logger.debug(f"Reverse mapping check: {mapping}")
+def reverse_map(
+    value: Union[int, float, str], mapping: Optional[Dict[str, Union[int, float]]]
+) -> Union[int, float, str]:
+    if mapping is None:
+        return value
+
+    if not all(isinstance(k, str) and isinstance(v, (int, float)) for k, v in mapping.items()):
+        raise TypeError("Mapping dictionary must have string keys and numeric (int or float) values.")
+
+    reversed_mapping: Dict[Union[int, float], str] = {v: k for k, v in mapping.items()}
+
+    if isinstance(value, (int, float)):
+        return reversed_mapping.get(value, str(value))
+
+    # If value is a string, return as-is (cannot be reversed)
     return value
 
 
@@ -45,88 +55,155 @@ def parse_annotator_name(name: str) -> str:
     return match.group(0) if match else name
 
 
-def krippendorff_alpha(
-    df: pd.DataFrame,
-    annotator_cols: List[str],
-    metric: str = "nominal",
-    weight_dict: Optional[Dict[str, float]] = None,
-    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
-    nominal_mappings: Optional[Dict[str, Dict[str, int]]] = None,
-    ordinal_mappings: Optional[Dict[str, Dict[str, int]]] = None,
-) -> Dict[str, Any]:
-    logger.info("Starting Krippendorff's alpha calculation.")
-    reliability_matrix = df.to_numpy(dtype=np.float64)
-    k, n = reliability_matrix.shape  # Rows are annotators, columns are subjects
-    logger.info(f"Reliability matrix size: {k} annotators, {n} subjects")
-
-    if k < 3 or n < 3:
-        raise ValueError("Reliability matrix must have at least three annotators and three subjects.")
-
+def compute_weight_vector(
+    df: pd.DataFrame, weight_dict: Optional[Dict[str, float]]
+) -> np.ndarray[Any, np.dtype[np.float64]]:
+    k = len(df.index)
     weight_vector = np.ones(k)
     if weight_dict:
-        for i, annotator in enumerate(annotator_cols):
+        for i, annotator in enumerate(df.index):
             parsed_name = parse_annotator_name(annotator)
             if parsed_name in weight_dict:
                 weight_vector[i] = weight_dict[parsed_name]
-    logger.info("Weight vector computed.")
+    return weight_vector
 
-    distance_fn = {
-        "nominal": nominal_distance,
-        "ordinal": lambda a, b: ordinal_distance(a, b, ordinal_scale),
-        "interval": interval_distance,
-        "ratio": ratio_distance,
-    }[metric]
 
+def compute_observed_disagreement(
+    reliability_matrix: np.ndarray[Any, np.dtype[np.float64]],
+    weight_vector: np.ndarray[Any, np.dtype[np.float64]],
+    distance_fn: Callable[[Any, Any], float],
+    data_type: DataTypeEnum,
+) -> Tuple[float, Dict[int, float], Dict[int, int]]:
+    n, k = reliability_matrix.shape
     observed_disagreement = 0.0
-    expected_disagreement = 0.0
-
-    unique_values, counts = np.unique(reliability_matrix[~np.isnan(reliability_matrix)], return_counts=True)
-    category_frequencies = {v: c / counts.sum() for v, c in zip(unique_values, counts)}
-
-    if metric in ["nominal", "ordinal"]:
-        per_category_obs_dis = {v: 0.0 for v in unique_values}
-        per_category_exp_dis = {v: 0.0 for v in unique_values}
-        pairwise_counts = {v: 0 for v in unique_values}
+    per_category_obs_dis: Dict[int, float] = {}
+    pairwise_counts: Dict[int, int] = {}
 
     for j in range(k):
-        for i in range(n):
-            for idx_l in range(i + 1, n):
-                d = weight_vector[j] * distance_fn(reliability_matrix[j, i], reliability_matrix[j, idx_l])
+        annotator_values = reliability_matrix[:, j]
+        for a in range(n):
+            for b in range(a + 1, n):
+                d = weight_vector[a] * weight_vector[b] * distance_fn(annotator_values[a], annotator_values[b])
                 observed_disagreement += d
-                if metric in ["nominal", "ordinal"]:
-                    per_category_obs_dis[reliability_matrix[j, i]] += d
-                    pairwise_counts[reliability_matrix[j, i]] += 1
-    logger.info(f"Observed disagreement: {observed_disagreement}")
+
+                if data_type in {DataTypeEnum.NOMINAL, DataTypeEnum.ORDINAL}:
+                    cat = int(annotator_values[a])
+                    per_category_obs_dis[cat] = per_category_obs_dis.get(cat, 0) + d
+                    pairwise_counts[cat] = pairwise_counts.get(cat, 0) + 1
+
+    return observed_disagreement, per_category_obs_dis, pairwise_counts
+
+
+def compute_expected_disagreement(
+    reliability_matrix: np.ndarray[Any, np.dtype[np.float64]],
+    distance_fn: Callable[[Any, Any], float],
+    data_type: DataTypeEnum,
+) -> Tuple[float, Dict[int, float]]:
+    expected_disagreement = 0.0
+    per_category_exp_dis: Dict[int, float] = {}
+
+    unique_values, counts = np.unique(reliability_matrix[~np.isnan(reliability_matrix)], return_counts=True)
+    category_frequencies = {int(v): c / counts.sum() for v, c in zip(unique_values, counts)}
 
     for v1 in unique_values:
         for v2 in unique_values:
             d = distance_fn(v1, v2) * category_frequencies.get(v1, 0) * category_frequencies.get(v2, 0)
             expected_disagreement += d
-            if metric in ["nominal", "ordinal"]:
-                per_category_exp_dis[v1] += d
-    logger.info(f"Expected disagreement: {expected_disagreement}")
 
-    observed_disagreement /= k * (n * (n - 1) / 2)
-    expected_disagreement /= sum(category_frequencies.values())
+            if data_type in {DataTypeEnum.NOMINAL, DataTypeEnum.ORDINAL}:
+                per_category_exp_dis[int(v1)] = per_category_exp_dis.get(int(v1), 0) + d
 
-    per_category_scores: Dict[str, Dict[str, float]] = {}
-    if metric in ["nominal", "ordinal"] and (nominal_mappings or ordinal_mappings):
-        correct_mapping = ordinal_mappings if metric == "ordinal" else nominal_mappings
-        if correct_mapping is not None:  # Ensure correct_mapping is valid
-            for category in unique_values:
-                mapped_category = reverse_map(int(category), correct_mapping)
-                logger.debug(f"Mapping category {category} -> {mapped_category}")
-                per_category_scores[str(mapped_category)] = {
-                    "observed_disagreement": per_category_obs_dis[category] / max(pairwise_counts.get(category, 1), 1),
-                    "expected_disagreement": per_category_exp_dis[category],
-                }
+    return expected_disagreement, per_category_exp_dis
+
+
+def compute_per_category_scores(
+    unique_values: np.ndarray[Any, np.dtype[np.number]],
+    per_category_obs_dis: Dict[int, float],
+    per_category_exp_dis: Dict[int, float],
+    pairwise_counts: Dict[int, int],
+    mapping: Optional[Dict[str, Union[int, float]]],
+) -> Dict[Union[str, int], Dict[str, float]]:
+    per_category_scores = {}
+    for category in unique_values:
+        category_value = category.item()
+
+        if isinstance(category_value, complex):
+            raise ValueError(f"Unexpected complex value: {category_value}")
+
+        if isinstance(category_value, float) and category_value.is_integer():
+            category_value = int(category_value)
+
+        mapped_category = reverse_map(category_value, mapping) if mapping else str(category_value)
+
+        # Ensure mapped_category is either str or int
+        if isinstance(mapped_category, float) and mapped_category.is_integer():
+            mapped_category = int(mapped_category)
+        elif not isinstance(mapped_category, (str, int)):
+            mapped_category = str(mapped_category)  # Convert any unexpected types to string
+
+        observed_disagreement_value = per_category_obs_dis.get(int(category_value), 0) / max(
+            pairwise_counts.get(int(category_value), 1), 1
+        )
+        expected_disagreement_value = per_category_exp_dis.get(int(category_value), 0)
+
+        per_category_scores[mapped_category] = {
+            "observed_disagreement": observed_disagreement_value,
+            "expected_disagreement": expected_disagreement_value,
+        }
+
+    return per_category_scores
+
+
+def krippendorff_alpha(
+    df: pd.DataFrame,
+    data_type: DataTypeEnum,
+    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
+    mapping: Optional[Dict[str, Union[int, float]]] = None,
+    weight_dict: Optional[Dict[str, float]] = None,
+) -> Dict[str, Any]:
+    logger.info("Starting Krippendorff's alpha calculation.")
+    reliability_matrix = df.to_numpy(dtype=np.float64)
+    n, k = reliability_matrix.shape
+    if k < 3 or n < 3:
+        raise ValueError("Reliability matrix must have at least three annotators and three subjects.")
+
+    weight_vector = compute_weight_vector(df, weight_dict)
+    logger.info(f"Weight vector: {weight_vector}")
+
+    distance_fn = {
+        DataTypeEnum.NOMINAL: nominal_distance,
+        DataTypeEnum.ORDINAL: lambda a, b: ordinal_distance(a, b, scale=ordinal_scale),
+        DataTypeEnum.INTERVAL: interval_distance,
+        DataTypeEnum.RATIO: ratio_distance,
+    }.get(data_type)
+
+    if distance_fn is None:
+        raise ValueError(f"Unsupported data type: {data_type}")
+
+    observed_disagreement, per_category_obs_dis, pairwise_counts = compute_observed_disagreement(
+        reliability_matrix, weight_vector, distance_fn, data_type
+    )
+    expected_disagreement, per_category_exp_dis = compute_expected_disagreement(
+        reliability_matrix, distance_fn, data_type
+    )
+
+    unique_values = np.unique(reliability_matrix[~np.isnan(reliability_matrix)])
+    per_category_scores = compute_per_category_scores(
+        unique_values, per_category_obs_dis, per_category_exp_dis, pairwise_counts, mapping
+    )
 
     overall_alpha = 1 - (observed_disagreement / expected_disagreement) if expected_disagreement > 0 else 1.0
     logger.info(f"Krippendorff's alpha: {overall_alpha}")
 
     return {
-        "alpha": overall_alpha,
-        "observed_disagreement": observed_disagreement,
-        "expected_disagreement": expected_disagreement,
-        "per_category_scores": per_category_scores,
+        "alpha": round(abs(float(overall_alpha)), 3),
+        "observed_disagreement": round(float(observed_disagreement), 3),
+        "expected_disagreement": round(float(expected_disagreement), 3),
+        "per_category_scores": {
+            k: {
+                "observed_disagreement": round(float(v["observed_disagreement"]), 3),
+                "expected_disagreement": round(float(v["expected_disagreement"]), 3),
+            }
+            for k, v in per_category_scores.items()
+        },
     }

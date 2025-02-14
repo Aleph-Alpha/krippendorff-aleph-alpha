@@ -1,58 +1,63 @@
+from typing import Optional, Any, Dict
+
 import pandas as pd
-from typing import Optional, List, Dict, Union, Any
-from src.krippendorff_alpha.preprocessing import preprocess_data
-from src.krippendorff_alpha.reliability import compute_reliability_matrix
-from src.krippendorff_alpha.metric import krippendorff_alpha
+
+from krippendorff_alpha.metric import krippendorff_alpha
+from krippendorff_alpha.preprocessing import preprocess_data
+from krippendorff_alpha.reliability import compute_reliability_matrix
+from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
 
 
 def compute_alpha(
-    path: Optional[str] = None,
-    df: Optional[pd.DataFrame] = None,
-    text_col: Optional[str] = None,
-    annotator_cols: Optional[List[str]] = None,
+    df: pd.DataFrame,
+    column_mapping: Optional[ColumnMapping] = None,
+    annotation_schema: Optional[AnnotationSchema] = None,
     weight_dict: Optional[Dict[str, float]] = None,
-    metric: str = "nominal",
-    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
-) -> Dict[str, Any]:
+    ordinal_scale: Optional[Dict[str, float]] = None,
+) -> Any:
     """
-    Computes Krippendorff's Alpha for Inter-annotator Agreement Analysis.
+    Computes Krippendorff's alpha for inter-annotator agreement.
 
-    Args:
-        path (str): Path to the dataset (CSV, JSON, JSONL, etc.).
-        df (pd.DataFrame): DataFrame containing annotations.
-        text_col (str): Column containing the text.
-        annotator_cols (list): List of annotator columns.
-        weight_dict (dict): Dictionary mapping annotators to weights.
-        metric (str): "nominal", "ordinal", "interval", or "ratio".
-        ordinal_scale (list): Optional scale for ordinal distance calculation.
+    Parameters:
+    - df (pd.DataFrame): The dataframe containing annotation data.
+    - column_mapping (Optional[ColumnMapping]): A mapping specifying which columns correspond to annotators and annotations.
+    - annotation_schema (Optional[AnnotationSchema]): The schema defining the annotation type (nominal, ordinal, etc.).
+    - weight_dict (Optional[Dict[str, float]]): A dictionary specifying weights for individual annotators (if applicable).
+    - ordinal_scale (Optional[Dict[str, float]]): A dictionary defining an ordinal scale if the data type is ordinal.
 
     Returns:
-        dict: {
-            "alpha": float,
-            "observed_disagreement": float,
-            "expected_disagreement": float,
-            "per_category_scores": Dict[str, Dict[str, float]]
-        }
+    - Any: A dictionary containing Krippendorff's alpha, observed and expected disagreement, and per-category scores.
+
+    Raises:
+    - ValueError: If df, column_mapping, or annotation_schema are not provided.
     """
-    # Preprocess data
-    processed_data = preprocess_data(path=path, df=df, text_col=text_col, annotator_cols=annotator_cols, metric=metric)
-    df_processed = processed_data.df
-    column_mapping = processed_data.column_mapping
-    nominal_mappings = processed_data.nominal_mappings
-    ordinal_mappings = processed_data.ordinal_mappings
+    if df is None or column_mapping is None or annotation_schema is None:
+        raise ValueError("df, column_mapping, and annotation_schema must be provided.")
 
-    # Compute reliability matrix
-    reliability_matrix = compute_reliability_matrix(df_processed, column_mapping)
+    preprocessed_data, text_col = preprocess_data(df, column_mapping, annotation_schema)
 
-    # Compute Krippendorff's Alpha and get all details
-    alpha_results = krippendorff_alpha(
-        df=reliability_matrix,
-        annotator_cols=column_mapping.annotator_cols,
-        metric=metric,
+    if preprocessed_data.nominal_mappings:
+        preprocessed_data.nominal_mappings = {str(k): v for k, v in preprocessed_data.nominal_mappings.items()}
+
+    if preprocessed_data.ordinal_mappings:
+        preprocessed_data.ordinal_mappings = {str(k): v for k, v in preprocessed_data.ordinal_mappings.items()}
+
+    # Extract the appropriate mapping based on the data type
+    if annotation_schema.data_type == "nominal":
+        mapping = preprocessed_data.nominal_mappings
+    elif annotation_schema.data_type == "ordinal":
+        mapping = preprocessed_data.ordinal_mappings
+    else:
+        mapping = None
+
+    reliability_matrix = compute_reliability_matrix(preprocessed_data.df, column_mapping, text_col)
+
+    results = krippendorff_alpha(
+        reliability_matrix,
+        data_type=annotation_schema.data_type,
+        mapping=mapping,
         weight_dict=weight_dict,
         ordinal_scale=ordinal_scale,
-        nominal_mappings=nominal_mappings,
-        ordinal_mappings=ordinal_mappings,
     )
 
-    return alpha_results
+    return results
