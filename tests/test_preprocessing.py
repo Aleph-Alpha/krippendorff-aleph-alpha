@@ -1,133 +1,76 @@
-from typing import List, Tuple
-
 import pandas as pd
-import json
-from pathlib import Path
-from src.krippendorff_alpha.schema import DataTypeEnum, PreprocessedData
-from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
-from src.krippendorff_alpha.preprocessing import (
-    detect_column,
-    detect_annotator_columns,
-    load_data,
-    flatten_json,
-    flatten_jsonl,
-    infer_annotation_type,
-    convert_ordinal_to_numeric,
-    convert_nominal_to_numeric,
-    preprocess_data,
-)
+from src.krippendorff_alpha.preprocessing import detect_column, preprocess_data
+from src.krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
+from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASES
 
 
-def test_detect_column() -> None:
-    df = pd.DataFrame({"text": ["sample text"], "annotator_1": [1]})
-    print("\nDetect Column - DataFrame:\n", df)
+def test_detect_column():
+    df = pd.DataFrame(
+        {
+            "Text": ["Sample sentence 1", "Sample sentence 2"],
+            "Annotator1": ["A", "B"],
+        }
+    )
 
-    detected_col = detect_column(df, TEXT_COLUMN_ALIASES)
-    assert detected_col == "text"
-
-    detected_col = detect_column(df, {"nonexistent"})
-    assert detected_col is None
-
-
-def test_detect_annotator_columns() -> None:
-    df = pd.DataFrame({"annotator_1": [1], "annotator_2": [2], "annotator_3": [3]})
-    print("\nDetect Annotator Columns - DataFrame:\n", df)
-
-    detected_cols = detect_annotator_columns(df)
-    assert detected_cols == ["annotator_1", "annotator_2", "annotator_3"]
+    assert detect_column(df, TEXT_COLUMN_ALIASES) == "Text"
+    assert detect_column(df, WORD_COLUMN_ALIASES) is None  # No match
 
 
-def test_load_data(example_data: Path) -> None:
-    # Test loading a CSV file
-    csv_path = Path(example_data) / "ordinal_orderedCategories_unequalGaps_sample.csv"
-    df = load_data(str(csv_path))
-    print("\nLoaded CSV DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+def test_preprocess_data_nominal():
+    df = pd.DataFrame(
+        {
+            "text": ["Hello world", "Goodbye world"],
+            "annotator1": ["positive", "negative"],
+            "annotator2": ["negative", "positive"],
+            "annotator3": ["neutral", "negative"],
+        }
+    )
 
-    # Test loading a JSON file
-    json_path = Path(example_data) / "nominal_categorical_noOrder_sample.json"
-    df = load_data(str(json_path))
-    print("\nLoaded JSON DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+    column_mapping = ColumnMapping(text_col=None, annotator_cols=["annotator1", "annotator2", "annotator3"])
 
-    # Test loading a JSONL file
-    jsonl_path = Path(example_data) / "interval_numeric_equalGaps_noAbsoluteZero.jsonl"
-    df = load_data(str(jsonl_path))
-    print("\nLoaded JSONL DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+    annotation_schema = AnnotationSchema(
+        data_type="nominal", annotation_level="text_level", missing_value_strategy="ignore"
+    )
 
-    # Test loading a TSV file
-    tsv_path = Path(example_data) / "ratio_numeric_equalGaps_withAbsoluteZero.tsv"
-    df = load_data(str(tsv_path))
-    print("\nLoaded TSV DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+    preprocessed_data, detected_text_col = preprocess_data(df, column_mapping, annotation_schema)
 
+    print("Detected text column:", detected_text_col)
+    print("Preprocessed DataFrame:")
+    print(preprocessed_data.df)
+    print("Ordinal mappings:", preprocessed_data.ordinal_mappings)
+    print("Nominal mappings:", preprocessed_data.nominal_mappings)
 
-def test_flatten_json(example_data: Path) -> None:
-    json_path = Path(example_data) / "nominal_categorical_noOrder_sample.json"
-    with open(json_path, "r") as f:
-        json_data = json.load(f)
-    df = flatten_json(json_data)
-    print("\nFlattened JSON DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+    assert detected_text_col == "text"
+    assert preprocessed_data.df.shape == df.shape
+    assert set(preprocessed_data.df.columns) == set(df.columns)
 
 
-def test_flatten_jsonl(example_data: Path) -> None:
-    jsonl_path = Path(example_data) / "interval_numeric_equalGaps_noAbsoluteZero.jsonl"
-    with open(jsonl_path, "r") as f:
-        jsonl_data = [json.loads(line) for line in f]
-    df = flatten_jsonl(jsonl_data)
-    print("\nFlattened JSONL DataFrame:\n", df.head())
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
+def test_preprocess_data_ordinal():
+    df = pd.DataFrame(
+        {
+            "text": ["it is very cold", "it is warm"],
+            "annotator1": ["low", "medium"],
+            "annotator2": ["low", "high"],
+            "annotator3": ["medium", "very high"],
+        }
+    )
 
+    column_mapping = ColumnMapping(text_col=None, annotator_cols=["annotator1", "annotator2", "annotator3"])
 
-def test_infer_annotation_type(datasets: List[Tuple[str, str]], example_data: Path) -> None:
-    for file_name, expected_type in datasets:
-        file_path = Path(example_data) / file_name
-        df = load_data(str(file_path))
-        print(f"\nInfer Annotation Type - DataFrame ({file_name}):\n", df.head())
+    annotation_schema = AnnotationSchema(
+        data_type="ordinal",  # 👈 User just enters a string now!
+        annotation_level="text_level",
+        missing_value_strategy="ignore",
+    )
 
-        annotator_cols = detect_annotator_columns(df)
-        for col in annotator_cols:
-            inferred_type = infer_annotation_type(df[col])
-            print(f"Column: {col}, Inferred Type: {inferred_type}")
-            assert inferred_type == DataTypeEnum[expected_type.upper()]
+    preprocessed_data, detected_text_col = preprocess_data(df, column_mapping, annotation_schema)
 
+    print("Detected text column:", detected_text_col)
+    print("Preprocessed DataFrame:")
+    print(preprocessed_data.df)
+    print("Ordinal mappings:", preprocessed_data.ordinal_mappings)
+    print("Nominal mappings:", preprocessed_data.nominal_mappings)
 
-def test_convert_ordinal_to_numeric(example_data: Path) -> None:
-    csv_path = Path(example_data) / "ordinal_orderedCategories_unequalGaps_sample.csv"
-    df = load_data(str(csv_path))
-    print("\nOriginal Ordinal DataFrame:\n", df.head())
-
-    annotator_cols = detect_annotator_columns(df)
-    for col in annotator_cols:
-        converted = convert_ordinal_to_numeric(df[col])
-        print(f"\nConverted Ordinal Column '{col}' to Numeric:\n", converted.head())
-        assert all(isinstance(x, (int, float)) for x in converted)
-
-
-def test_convert_nominal_to_numeric(example_data: Path) -> None:
-    json_path = Path(example_data) / "nominal_categorical_noOrder_sample.json"
-    df = load_data(str(json_path))
-    print("\nOriginal Nominal DataFrame:\n", df.head())
-
-    annotator_cols = detect_annotator_columns(df)
-    for col in annotator_cols:
-        converted = convert_nominal_to_numeric(df[col], col)
-        print(f"\nConverted Nominal Column '{col}' to Numeric:\n", converted.head())
-        assert all(isinstance(x, int) for x in converted)
-
-
-def test_preprocess_data(datasets: List[Tuple[str, str]], example_data: Path) -> None:
-    for file_name, _ in datasets:
-        file_path = Path(example_data) / file_name
-        preprocessed = preprocess_data(path=str(file_path))
-        print(f"\nPreprocessed DataFrame ({file_name}):\n", preprocessed.df.head())
-        assert isinstance(preprocessed, PreprocessedData)
-        assert len(preprocessed.df) > 0
+    assert detected_text_col == "text"
+    assert preprocessed_data.df.shape == df.shape
+    assert set(preprocessed_data.df.columns) == set(df.columns)

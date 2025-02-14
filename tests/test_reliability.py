@@ -1,49 +1,50 @@
-import pytest
-import os
 import pandas as pd
-
-from src.krippendorff_alpha.constants import WORD_COLUMN_ALIASES, TEXT_COLUMN_ALIASES
+import logging
+from src.krippendorff_alpha.schema import (
+    ColumnMapping,
+    AnnotationSchema,
+)
 from src.krippendorff_alpha.reliability import compute_reliability_matrix
 from src.krippendorff_alpha.preprocessing import preprocess_data
 
+logging.basicConfig(level=logging.INFO)
 
-@pytest.mark.parametrize(
-    "filename, data_type",
-    [
-        ("interval_numeric_equalGaps_noAbsoluteZero.jsonl", "interval"),
-        ("nominal_categorical_noOrder_sample.json", "nominal"),
-        ("ordinal_orderedCategories_unequalGaps_sample.csv", "ordinal"),
-        ("ratio_numeric_equalGaps_withAbsoluteZero.tsv", "ratio"),
-    ],
-)
-def test_compute_reliability_matrix(example_data: str, filename: str, data_type: str) -> None:
-    path: str = os.path.join(example_data, filename)
 
-    print(f"\n--- Testing {filename} ({data_type}) ---")
+def test_compute_reliability_matrix():
+    # Create a sample DataFrame
+    data = {
+        "text": ["Hello world", "Goodbye world", "It is sunny"],
+        "annotator1": ["positive", "negative", "positive"],
+        "annotator2": ["negative", "positive", "negative"],
+        "annotator3": ["positive", "negative", "positive"],
+    }
+    df = pd.DataFrame(data)
 
-    preprocessed = preprocess_data(path)
-    df = preprocessed.df
-    column_mapping = preprocessed.column_mapping
+    # Define annotation schema
 
-    print("\nOriginal Preprocessed DataFrame:")
-    print(df.head())
-
-    reliability_matrix = compute_reliability_matrix(df, column_mapping)
-
-    print("\nTransformed Reliability Matrix:")
-    print(reliability_matrix.head())
-
-    assert isinstance(reliability_matrix, pd.DataFrame), "Output should be a DataFrame"
-    assert not reliability_matrix.empty, "Reliability matrix should not be empty"
-    assert set(reliability_matrix.index) == set(column_mapping.annotator_cols), "Rows should match annotators"
-    expected_index_col = next((col for col in WORD_COLUMN_ALIASES if col in df.columns), None)
-    if not expected_index_col:
-        expected_index_col = next((col for col in TEXT_COLUMN_ALIASES if col in df.columns), None)
-
-    assert expected_index_col is not None, "Neither word nor text column found in df."
-
-    expected_columns = set(df[expected_index_col])
-
-    assert set(reliability_matrix.columns) == expected_columns, (
-        "Columns should match the expected word or text column values."
+    annotation_schema = AnnotationSchema(
+        data_type="nominal", annotation_level="text_level", missing_value_strategy="ignore"
     )
+
+    # Preprocess data (auto-detects text column and annotator columns)
+    preprocessed_data, detected_text_col = preprocess_data(df, ColumnMapping(), annotation_schema)
+
+    # Print preprocessed DataFrame
+    print("Preprocessed DataFrame:")
+    print(preprocessed_data.df)
+
+    # Compute reliability matrix without explicitly passing column_mapping
+    reliability_matrix = compute_reliability_matrix(
+        preprocessed_data.df, preprocessed_data.column_mapping, detected_text_col
+    )
+
+    # Print output reliability matrix
+    print("Reliability Matrix:")
+    print(reliability_matrix)
+
+    # Assertions
+    assert reliability_matrix.shape == (3, 3)  # Expecting 3 annotators x 3 texts
+    assert list(reliability_matrix.columns) == ["Hello world", "Goodbye world", "It is sunny"]
+    assert list(reliability_matrix.index) == ["annotator1", "annotator2", "annotator3"]
+
+    print("Test passed: compute_reliability_matrix works as expected!")

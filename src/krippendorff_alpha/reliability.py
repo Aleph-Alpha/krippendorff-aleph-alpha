@@ -1,45 +1,45 @@
 import pandas as pd
-import numpy as np
 import logging
+from typing import Optional
 from src.krippendorff_alpha.schema import ColumnMapping
-from src.krippendorff_alpha.constants import WORD_COLUMN_ALIASES, TEXT_COLUMN_ALIASES
+from src.krippendorff_alpha.preprocessing import detect_annotator_columns, detect_column
+from src.krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
 
 logging.basicConfig(level=logging.INFO)
 
 
-def compute_reliability_matrix(df: pd.DataFrame, column_mapping: ColumnMapping) -> pd.DataFrame:
+def compute_reliability_matrix(
+    df: pd.DataFrame, column_mapping: Optional[ColumnMapping] = None, text_col: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Computes the reliability matrix for the given DataFrame and column mapping.
+    Computes the reliability matrix for the given DataFrame.
 
     Parameters:
-    df (pd.DataFrame): The input DataFrame containing the data.
-    column_mapping (ColumnMapping): The mapping of columns including annotator columns.
+    - df (pd.DataFrame): The input DataFrame.
+    - column_mapping (Optional[ColumnMapping]): Column mapping (optional, inferred if not provided).
+    - text_col (Optional[str]): The detected text column from preprocessing (optional).
 
     Returns:
-    pd.DataFrame: The transposed reliability matrix with annotator columns as rows and text/word indices as columns.
+    - pd.DataFrame: The transposed reliability matrix with annotator columns as rows and text indices as columns.
     """
 
     logging.info("Starting computation of reliability matrix.")
-    annotator_cols = column_mapping.annotator_cols
 
-    logging.info(f"Annotator columns identified: {annotator_cols}")
+    # Detect columns if column_mapping is not provided
+    annotator_cols = column_mapping.annotator_cols if column_mapping else detect_annotator_columns(df)
+    text_col = text_col or (column_mapping.text_col if column_mapping else detect_column(df, TEXT_COLUMN_ALIASES))
 
-    # Check if any word-based column exists in the dataset
-    word_col = next((col for col in WORD_COLUMN_ALIASES if col in df.columns), None)
-    text_col = next((col for col in TEXT_COLUMN_ALIASES if col in df.columns), None)
+    logging.info(f"Detected annotator columns: {annotator_cols}")
+    logging.info(f"Detected text column: {text_col}")
 
-    logging.info(f"Identified word column: {word_col}, text column: {text_col}")
+    if not annotator_cols or text_col not in df.columns:
+        logging.error("Missing annotator columns or a valid text column in the data.")
+        raise ValueError("Missing annotator columns or a valid text column in the data.")
 
-    index_col = word_col if word_col and word_col in df.columns else text_col
+    # Convert DataFrame to reliability matrix format
+    annotator_matrix = df[annotator_cols].to_numpy()
+    text_index = df[text_col].to_numpy()
 
-    if not annotator_cols or index_col not in df.columns:
-        logging.error("Missing annotator columns or a valid word/text column in the data.")
-        raise ValueError("Missing annotator columns or a valid word/text column in the data.")
-
-    logging.info(f"Using '{index_col}' as the index column.")
-
-    annotator_matrix = df[annotator_cols].to_numpy(dtype=np.float32)
-    text_index = df[index_col].to_numpy()
     reliability_matrix = pd.DataFrame(annotator_matrix, columns=annotator_cols, index=text_index)
 
     logging.info(f"Reliability matrix computed with shape {reliability_matrix.shape}.")
