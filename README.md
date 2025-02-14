@@ -9,16 +9,13 @@ Features (Planned & In Progress):
 
 ✔️ Support for multiple data types (Nominal, Ordinal, etc.)
 
-✔️ Support for reliability matrix storage and dynamic update
+✔️ Custom weights for annotator impact on annotation assignments
 
-✔️ Flexible data input formats (CSV, JSON, DataFrames)
+✔️ Performance optimizations 
 
-✔️ Custom weights for different applications
+✔️ Fine-grained output for categorical values
 
-✔️ Performance optimizations (vectorization, sparse matrices)
 
-✔️ Structured outputs with optional visualizations
-Installation
 
 
 ## Setup
