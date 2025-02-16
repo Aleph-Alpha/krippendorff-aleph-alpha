@@ -1,10 +1,7 @@
 # Krippendorff's Aleph Alpha
 
-🚧 Project in Review 🚧
 
-This repository contains an implementation of Krippendorff’s Alpha, a statistical measure of inter-rater reliability designed for various data types (Nominal, Ordinal, Interval, and Ratio). The goal is to support multiple data formats (CSV, JSON, Pandas DataFrames), efficient computations, and dynamic updates for annotators.
-
-
+This repository contains an implementation of Krippendorff’s Alpha, a statistical measure of inter-rater reliability designed for various data types (Nominal, Ordinal, Interval, and Ratio). 
 Features (Planned & In Progress):
 
 ✔️ Support for multiple data types (Nominal, Ordinal, etc.)
