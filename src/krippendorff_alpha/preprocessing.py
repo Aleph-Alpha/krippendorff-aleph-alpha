@@ -59,6 +59,18 @@ def preprocess_data(
     column_mapping: ColumnMapping,
     annotation_schema: AnnotationSchema,
 ) -> Tuple[PreprocessedData, str]:
+    """
+    Preprocesses annotation data by detecting relevant columns, mapping categorical labels to numeric values,
+    and handling missing values based on the specified annotation schema.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing annotation data.
+        column_mapping (ColumnMapping): Object containing mappings for text and annotator columns.
+        annotation_schema (AnnotationSchema): Object defining the annotation level, data type, and missing value strategy.
+
+    Returns:
+        Tuple[PreprocessedData, str]: A tuple containing the preprocessed data and detected text column name.
+    """
     if df is None:
         raise ValueError("A DataFrame must be provided.")
 

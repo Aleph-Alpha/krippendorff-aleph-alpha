@@ -173,6 +173,24 @@ def krippendorff_alpha(
     mapping: Optional[Dict[str, Union[int, float]]] = None,
     weight_dict: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
+    """
+    Computes Krippendorff's alpha reliability coefficient for assessing inter-annotator agreement.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing annotations from multiple annotators.
+        data_type (DataTypeEnum): The type of data (nominal, ordinal, interval, or ratio).
+        ordinal_scale (Optional[List[Union[int, float, str]]]): The predefined scale for ordinal data (if applicable).
+        mapping (Optional[Dict[str, Union[int, float]]]): A mapping of categorical labels to numeric values.
+        weight_dict (Optional[Dict[str, float]]): An optional dictionary assigning weights to annotators.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing:
+            - "alpha": The Krippendorff's alpha value (float).
+            - "observed_disagreement": The observed disagreement value (float).
+            - "expected_disagreement": The expected disagreement value (float).
+            - "per_category_scores": A breakdown of disagreements per category (dict) for nominal/ordinal data.
+    """
+
     logger.info("Starting Krippendorff's alpha calculation.")
     reliability_matrix = df.to_numpy(dtype=np.float64)
     n, k = reliability_matrix.shape
