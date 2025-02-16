@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any, Union, List, Tuple, Callable
 from krippendorff_alpha.schema import DataTypeEnum
 from krippendorff_alpha.constants import ANNOTATOR_REGEX
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -79,18 +79,25 @@ def compute_observed_disagreement(
     per_category_obs_dis: Dict[int, float] = {}
     pairwise_counts: Dict[int, int] = {}
 
-    for j in range(k):
+    total_comparisons = 0  # Keep track of the number of comparisons
+
+    for j in range(k):  # Iterate over items (columns)
         annotator_values = reliability_matrix[:, j]
+
         for a in range(n):
             for b in range(a + 1, n):
                 d = weight_vector[a] * weight_vector[b] * distance_fn(annotator_values[a], annotator_values[b])
+
                 observed_disagreement += d
+                total_comparisons += 1  # Count valid comparisons
 
                 if data_type in {DataTypeEnum.NOMINAL, DataTypeEnum.ORDINAL}:
                     cat = int(annotator_values[a])
                     per_category_obs_dis[cat] = per_category_obs_dis.get(cat, 0) + d
                     pairwise_counts[cat] = pairwise_counts.get(cat, 0) + 1
 
+    # Normalize observed disagreement
+    observed_disagreement /= total_comparisons if total_comparisons > 0 else 1
     return observed_disagreement, per_category_obs_dis, pairwise_counts
 
 
@@ -103,16 +110,19 @@ def compute_expected_disagreement(
     per_category_exp_dis: Dict[int, float] = {}
 
     unique_values, counts = np.unique(reliability_matrix[~np.isnan(reliability_matrix)], return_counts=True)
-    category_frequencies = {int(v): c / counts.sum() for v, c in zip(unique_values, counts)}
+    total_values = counts.sum()
 
+    # Compute category probabilities
+    category_frequencies = {int(v): c / total_values for v, c in zip(unique_values, counts)}
+
+    # Compute expected disagreement
     for v1 in unique_values:
         for v2 in unique_values:
-            d = distance_fn(v1, v2) * category_frequencies.get(v1, 0) * category_frequencies.get(v2, 0)
+            d = distance_fn(v1, v2) * category_frequencies[v1] * category_frequencies[v2]
             expected_disagreement += d
 
             if data_type in {DataTypeEnum.NOMINAL, DataTypeEnum.ORDINAL}:
                 per_category_exp_dis[int(v1)] = per_category_exp_dis.get(int(v1), 0) + d
-
     return expected_disagreement, per_category_exp_dis
 
 
@@ -179,7 +189,6 @@ def krippendorff_alpha(
 
     if distance_fn is None:
         raise ValueError(f"Unsupported data type: {data_type}")
-
     observed_disagreement, per_category_obs_dis, pairwise_counts = compute_observed_disagreement(
         reliability_matrix, weight_vector, distance_fn, data_type
     )
@@ -196,14 +205,18 @@ def krippendorff_alpha(
     logger.info(f"Krippendorff's alpha: {overall_alpha}")
 
     return {
-        "alpha": round(abs(float(overall_alpha)), 3),
+        "alpha": round(float(overall_alpha), 3),
         "observed_disagreement": round(float(observed_disagreement), 3),
         "expected_disagreement": round(float(expected_disagreement), 3),
-        "per_category_scores": {
-            k: {
-                "observed_disagreement": round(float(v["observed_disagreement"]), 3),
-                "expected_disagreement": round(float(v["expected_disagreement"]), 3),
+        "per_category_scores": (
+            {
+                k: {
+                    "observed_disagreement": round(float(v["observed_disagreement"]), 3),
+                    "expected_disagreement": round(float(v["expected_disagreement"]), 3),
+                }
+                for k, v in per_category_scores.items()
             }
-            for k, v in per_category_scores.items()
-        },
+            if data_type in {DataTypeEnum.NOMINAL, DataTypeEnum.ORDINAL}
+            else None
+        ),
     }

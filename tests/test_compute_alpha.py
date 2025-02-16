@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 import pytest
 from krippendorff_alpha.schema import ColumnMapping
 from krippendorff_alpha.compute_alpha import compute_alpha
@@ -14,6 +15,7 @@ def test_compute_alpha_nominal(df_nominal: pd.DataFrame) -> None:
     print("Column Mapping:", column_mapping)
 
     results = compute_alpha(df_nominal, data_type="nominal", column_mapping=column_mapping)
+    results = json.loads(results) if isinstance(results, str) else results
 
     print("Results:", results)
     assert "alpha" in results
@@ -32,6 +34,7 @@ def test_compute_alpha_ordinal(df_ordinal: pd.DataFrame) -> None:
     print("Ordinal Scale:", ordinal_scale)
 
     results = compute_alpha(df_ordinal, data_type="ordinal", column_mapping=column_mapping, ordinal_scale=ordinal_scale)
+    results = json.loads(results) if isinstance(results, str) else results
 
     print("Results:", results)
     assert "alpha" in results
@@ -45,6 +48,7 @@ def test_compute_alpha_default_annotation_level(df_nominal: pd.DataFrame) -> Non
 
     # Explicitly passing an empty ColumnMapping to avoid None issue
     results = compute_alpha(df_nominal, data_type="nominal", column_mapping=ColumnMapping())
+    results = json.loads(results) if isinstance(results, str) else results
 
     print("Results:", results)
     assert "alpha" in results

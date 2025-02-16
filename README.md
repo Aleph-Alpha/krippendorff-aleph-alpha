@@ -53,24 +53,6 @@ The project is structured to ensure **modularity, scalability, and ease of use**
 - **`src/krippendorff_alpha/`**  
   Contains the core implementation of Krippendorff's Alpha, including modules for preprocessing, reliability computation, and metric calculation.
 
-- **`config.py`**  
-  Central configuration file for computing Krippendorff's Alpha. It handles data loading, preprocessing, reliability matrix updates, and alpha computation.
-
-- **`reliability.py`**  
-  Manages the reliability matrix calculation.
-
-- **`preprocessing.py`**  
-  Handles data preprocessing for different input formats and annotation levels.
-
-- **`metric.py`**  
-  Implements the Krippendorff's Alpha calculation for different metrics (**nominal, ordinal, interval, ratio**).
-
-- **`schema.py`**  
-  Defines data schemas and mappings for consistent data handling.
-
-- **`utils.py`**  
-  Utility functions for common operations.
-
 - **`examples/`**  
   Contains example datasets in various formats (**CSV, JSON, TSV**) to demonstrate the usage of Krippendorff's Alpha for different data types (**nominal, ordinal, interval, ratio**).  
   Each dataset is accompanied by a description in the `README.md` file within the directory.
@@ -79,6 +61,6 @@ The project is structured to ensure **modularity, scalability, and ease of use**
   Contains usability examples for the code.
 
 -------
-## Jupyter Notebook (Upcoming)
+## Jupyter Notebook 
 
 A Jupyter notebook will be added to demonstrate the usage of Krippendorff's Alpha on various datasets. The notebook will:

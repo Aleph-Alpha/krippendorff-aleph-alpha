@@ -1,5 +1,6 @@
 from typing import Optional, Any, Dict
 import pandas as pd
+import json
 from krippendorff_alpha.metric import krippendorff_alpha
 from krippendorff_alpha.preprocessing import preprocess_data
 from krippendorff_alpha.reliability import compute_reliability_matrix
@@ -73,4 +74,7 @@ def compute_alpha(
         ordinal_scale=ordinal_scale,
     )
 
-    return results
+    if results.get("per_category_scores") is None:
+        del results["per_category_scores"]
+
+    return json.dumps(results, indent=4)
