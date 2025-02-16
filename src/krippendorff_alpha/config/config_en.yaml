@@ -15,12 +15,23 @@ ordinal_categories:
     - ["No Pain", "Mild", "Moderate", "Severe", "Extreme"]
     - ["Very Low", "Low", "Moderate", "High", "Very High"]
     - ["Not Urgent", "Slightly Urgent", "Moderately Urgent", "Urgent", "Critical"]
+    - [ "Minimal", "Low", "Moderate", "High", "Very High" ]
   probability:
     - ["Impossible", "Unlikely", "Neutral", "Likely", "Certain"]
     - ["Not Confident", "Slightly Confident", "Moderately Confident", "Very Confident", "Completely Confident"]
   custom_scales:
     - ["Terrible", "Bad", "Okay", "Good", "Excellent"]
     - ["Very Low", "Low", "Medium", "High", "Very High"]
+  frequency:
+    - [ "Never", "Rarely", "Occasionally", "Frequently", "Always" ]
+  education_levels:
+    - [ "High School", "Associate's Degree", "Bachelor's Degree", "Master's Degree", "Doctorate" ]
+  health_severity:
+    - [ "Healthy", "Mild", "Moderate", "Severe", "Critical" ]
+  age_groups:
+    - [ "Under 18", "18-24", "25-34", "35-44", "45+" ]
+  quality_scores:
+    - [ "Very Poor", "Poor", "Average", "Good", "Excellent" ]
 
 text_column_aliases:
   - text
