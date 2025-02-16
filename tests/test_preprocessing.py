@@ -1,7 +1,7 @@
 import pandas as pd
 from krippendorff_alpha.preprocessing import preprocess_data, detect_column
 from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema
-from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASES
+from krippendorff_alpha.constants import WORD_COLUMN_ALIASES
 
 
 def test_detect_column() -> None:
@@ -12,9 +12,7 @@ def test_detect_column() -> None:
         }
     )
 
-    #assert detect_column(df, TEXT_COLUMN_ALIASES) == "Text"
     assert detect_column(df, WORD_COLUMN_ALIASES) == "word"
-   # assert detect_column(df, WORD_COLUMN_ALIASES) is None  # No match
 
 
 def test_preprocess_data_nominal(df_nominal: pd.DataFrame) -> None:
@@ -36,6 +34,7 @@ def test_preprocess_data_nominal(df_nominal: pd.DataFrame) -> None:
     assert preprocessed_data.df.shape == df_nominal.shape
     assert set(preprocessed_data.df.columns) == set(df_nominal.columns)
 
+
 def test_preprocess_word_nominal() -> None:
     column_mapping = ColumnMapping()
 
@@ -43,12 +42,12 @@ def test_preprocess_word_nominal() -> None:
         data_type="nominal", annotation_level="token_level", missing_value_strategy="ignore"
     )
     data = {
-            "text": ["it is very cold", "it is warm", "it is hot"],
-            "word":["cold", "warm", "hot"],
-            "annotator1": ["temp", "O", "temp"],
-            "annotator2": ["temp", "temp", "O"],
-            "annotator3": ["temp", "temp", "O"],
-        }
+        "text": ["it is very cold", "it is warm", "it is hot"],
+        "word": ["cold", "warm", "hot"],
+        "annotator1": ["temp", "O", "temp"],
+        "annotator2": ["temp", "temp", "O"],
+        "annotator3": ["temp", "temp", "O"],
+    }
     df = pd.DataFrame(data)
 
     preprocessed_data, detected_text_col = preprocess_data(df, column_mapping, annotation_schema)

@@ -63,7 +63,6 @@ def compute_alpha(
         else None
     )
 
-
     # Compute reliability matrix
     reliability_matrix = compute_reliability_matrix(preprocessed_data.df, preprocessed_data.column_mapping, text_col)
 
