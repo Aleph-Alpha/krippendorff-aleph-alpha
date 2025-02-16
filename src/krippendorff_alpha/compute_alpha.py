@@ -1,4 +1,4 @@
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, List, Union
 import pandas as pd
 import json
 from krippendorff_alpha.metric import krippendorff_alpha
@@ -13,7 +13,7 @@ def compute_alpha(
     column_mapping: Optional[ColumnMapping] = None,
     annotation_level: str = AnnotationLevelEnum.TEXT_LEVEL,
     weight_dict: Optional[Dict[str, float]] = None,
-    ordinal_scale: Optional[Dict[str, float]] = None,
+    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
 ) -> Any:
     """
     Computes Krippendorff's alpha for inter-annotator agreement.
@@ -25,7 +25,7 @@ def compute_alpha(
       If None, it will be inferred automatically.
     - annotation_level (str, default="text_level"): The level of annotation (e.g., "text_level", "token_level").
     - weight_dict (Optional[Dict[str, float]]): A dictionary specifying weights for individual annotators (if applicable).
-    - ordinal_scale (Optional[Dict[str, float]]): A dictionary defining an ordinal scale if the data type is ordinal.
+    - ordinal_scale: Optional[List[Union[int, float, str]]]: A list defining an ordinal scale if the data type is ordinal.
 
     Returns:
     - Any: A dictionary containing Krippendorff's alpha, observed and expected disagreement, and per-category scores.

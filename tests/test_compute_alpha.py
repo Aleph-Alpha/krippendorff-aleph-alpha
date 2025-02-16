@@ -28,7 +28,9 @@ def test_compute_alpha_ordinal(df_ordinal: pd.DataFrame) -> None:
     print(df_ordinal)
 
     column_mapping = ColumnMapping(annotator_cols=["annotator1", "annotator2", "annotator3"], text_col="text")
-    ordinal_scale = {"low": 1.0, "medium": 2.0, "high": 3.0, "very high": 4.0}  # Define ordinal scale
+
+    # Define ordinal scale as a list (correct format)
+    ordinal_scale = ["low", "medium", "high", "very high"]
 
     print("Column Mapping:", column_mapping)
     print("Ordinal Scale:", ordinal_scale)
