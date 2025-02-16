@@ -24,6 +24,13 @@ uv sync
 
 ## How to Use
 
+### Install python package in editable mode:
+
+```bash
+uv pip install -e .
+
+```
+
 ###  Open the Notebook
 
 Launch Jupyter Notebook in the project root:
@@ -32,6 +39,8 @@ Launch Jupyter Notebook in the project root:
 jupyter notebook notebooks/krippendorff_alpha_demo.ipynb
 
 ```
+
+
 ----
 ### Setting Up Jupyter for This Project
 
@@ -60,14 +69,14 @@ python -m ipykernel install --user --name=krippendorff-aleph-alpha --display-nam
 
 ```bash
 
-jupyter lab  # Or jupyter notebook
+jupyter notebook # Or jupyter lab
 
 ```
 2. Open your notebook (annotation_evaluation.ipynb).
 
 3. Go to Kernel → Change Kernel.
 
-4. Select "Python (krippendorff)" (the one you just installed).
+4. Select "Python (krippendorff)"
 
 
 ### Step 4: Verify the Fix
