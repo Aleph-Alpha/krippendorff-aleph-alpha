@@ -60,4 +60,4 @@ The project is structured to ensure **modularity, scalability, and ease of use**
 -------
 ## Jupyter Notebook 
 
-A Jupyter notebook will be added to demonstrate the usage of Krippendorff's Alpha on various datasets. The notebook will:
+A Jupyter notebook is added to demonstrate the usage of Krippendorff's Alpha on various datasets.
