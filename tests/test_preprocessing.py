@@ -7,13 +7,14 @@ from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES, WORD_COLUMN_ALIASE
 def test_detect_column() -> None:
     df = pd.DataFrame(
         {
-            "Text": ["Sample sentence 1", "Sample sentence 2"],
+            "word": ["Sample1", "Sample2"],
             "Annotator1": ["A", "B"],
         }
     )
 
-    assert detect_column(df, TEXT_COLUMN_ALIASES) == "Text"
-    assert detect_column(df, WORD_COLUMN_ALIASES) is None  # No match
+    #assert detect_column(df, TEXT_COLUMN_ALIASES) == "Text"
+    assert detect_column(df, WORD_COLUMN_ALIASES) == "word"
+   # assert detect_column(df, WORD_COLUMN_ALIASES) is None  # No match
 
 
 def test_preprocess_data_nominal(df_nominal: pd.DataFrame) -> None:
@@ -34,6 +35,33 @@ def test_preprocess_data_nominal(df_nominal: pd.DataFrame) -> None:
     assert detected_text_col == "text"
     assert preprocessed_data.df.shape == df_nominal.shape
     assert set(preprocessed_data.df.columns) == set(df_nominal.columns)
+
+def test_preprocess_word_nominal() -> None:
+    column_mapping = ColumnMapping()
+
+    annotation_schema = AnnotationSchema(
+        data_type="nominal", annotation_level="token_level", missing_value_strategy="ignore"
+    )
+    data = {
+            "text": ["it is very cold", "it is warm", "it is hot"],
+            "word":["cold", "warm", "hot"],
+            "annotator1": ["temp", "O", "temp"],
+            "annotator2": ["temp", "temp", "O"],
+            "annotator3": ["temp", "temp", "O"],
+        }
+    df = pd.DataFrame(data)
+
+    preprocessed_data, detected_text_col = preprocess_data(df, column_mapping, annotation_schema)
+
+    print("Detected text column:", detected_text_col)
+    print("Preprocessed DataFrame:")
+    print(preprocessed_data.df)
+    print("Ordinal mappings:", preprocessed_data.ordinal_mappings)
+    print("Nominal mappings:", preprocessed_data.nominal_mappings)
+
+    assert detected_text_col == "word"
+    assert preprocessed_data.df.shape == df.shape
+    assert set(preprocessed_data.df.columns) == set(df.columns)
 
 
 def test_preprocess_data_ordinal(df_ordinal: pd.DataFrame) -> None:

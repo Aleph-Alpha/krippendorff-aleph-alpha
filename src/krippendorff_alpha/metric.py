@@ -29,7 +29,9 @@ def interval_distance(a: float, b: float) -> float:
 
 
 def ratio_distance(a: float, b: float) -> float:
-    return float(np.divide((a - b) ** 2, (a + b), out=np.zeros_like(a, dtype=float), where=(a + b) != 0).item())
+    if a == 0 and b == 0:
+        return 0.0
+    return (a - b) ** 2 / (a + b)
 
 
 def reverse_map(

@@ -48,6 +48,7 @@ def compute_alpha(
 
     # Convert mappings to string keys (for compatibility)
     if preprocessed_data.nominal_mappings:
+        print(preprocessed_data.nominal_mappings)
         preprocessed_data.nominal_mappings = {str(k): v for k, v in preprocessed_data.nominal_mappings.items()}
 
     if preprocessed_data.ordinal_mappings:
@@ -61,6 +62,7 @@ def compute_alpha(
         if preprocessed_data.annotation_schema.data_type == "ordinal"
         else None
     )
+
 
     # Compute reliability matrix
     reliability_matrix = compute_reliability_matrix(preprocessed_data.df, preprocessed_data.column_mapping, text_col)

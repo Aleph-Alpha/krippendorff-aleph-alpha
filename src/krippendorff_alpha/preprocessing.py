@@ -1,6 +1,6 @@
 import pandas as pd
 import logging
-from typing import Dict, Optional, List, Tuple
+from typing import Optional, List, Tuple, Any
 
 from krippendorff_alpha.constants import (
     TEXT_COLUMN_ALIASES,
@@ -29,7 +29,9 @@ def detect_annotator_columns(df: pd.DataFrame) -> List[str]:
     return [col for col in df.columns if ANNOTATOR_REGEX.match(col)]
 
 
-def create_global_mapping(df: pd.DataFrame, annotator_cols: List[str], data_type: str) -> Dict[str, int]:
+def create_global_mapping(
+    df: pd.DataFrame, annotator_cols: List[str], data_type: str
+) -> dict[Any, int] | dict[Any, str]:
     """Creates a unified mapping across all annotator columns to ensure consistency."""
     unique_values = set()
     for col in annotator_cols:
