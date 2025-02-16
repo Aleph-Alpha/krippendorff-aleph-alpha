@@ -10,7 +10,7 @@ from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema, Annotatio
 def compute_alpha(
     df: pd.DataFrame,
     data_type: str,
-    column_mapping: Optional[ColumnMapping] = None,
+    column_mapping: Optional[Union[ColumnMapping, Dict[str, Any]]] = None,
     annotation_level: str = AnnotationLevelEnum.TEXT_LEVEL,
     weight_dict: Optional[Dict[str, float]] = None,
     ordinal_scale: Optional[List[Union[int, float, str]]] = None,
@@ -36,6 +36,8 @@ def compute_alpha(
 
     if column_mapping is None:
         column_mapping = ColumnMapping()
+    elif isinstance(column_mapping, dict):
+        column_mapping = ColumnMapping(**column_mapping)
 
     # Create annotation schema with user-defined `data_type` and default `annotation_level`
     annotation_schema = AnnotationSchema(
