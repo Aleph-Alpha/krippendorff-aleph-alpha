@@ -64,3 +64,11 @@ The project is structured to ensure **modularity, scalability, and ease of use**
 ## Jupyter Notebook 
 
 A Jupyter notebook is added to demonstrate the usage of Krippendorff's Alpha on various datasets.
+
+-------
+
+## Limitations
+
+1. Krippendorff’s alpha is more meaningful for larger data samples, however low agreement can still be a sign of labeling issue. 
+2. The code requires at least three annotator columns to compute inter-annotator agreement.
+3. The function computes Krippendorff’s alpha but does not provide statistical significance (e.g., confidence intervals).
