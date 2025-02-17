@@ -4,7 +4,13 @@ import json
 from krippendorff_alpha.metric import krippendorff_alpha
 from krippendorff_alpha.preprocessing import preprocess_data
 from krippendorff_alpha.reliability import compute_reliability_matrix
-from krippendorff_alpha.schema import ColumnMapping, AnnotationSchema, AnnotationLevelEnum
+from krippendorff_alpha.schema import (
+    ColumnMapping,
+    AnnotationSchema,
+    AnnotationLevelEnum,
+    MissingValueStrategyEnum,
+    DataTypeEnum,
+)
 
 
 def compute_alpha(
@@ -35,14 +41,23 @@ def compute_alpha(
         raise ValueError("A valid DataFrame (df) must be provided.")
 
     if column_mapping is None:
-        column_mapping = ColumnMapping()
+        inferred_text_col = next((col for col in df.columns if df[col].dtype == "object"), None)
+        inferred_annotator_cols = [col for col in df.columns if col != inferred_text_col]
+        if len(inferred_annotator_cols) < 3:
+            raise ValueError("At least three annotator columns are required for reliability assessment.")
+
+        column_mapping = ColumnMapping(text_col=inferred_text_col, annotator_cols=inferred_annotator_cols)
+
     elif isinstance(column_mapping, dict):
         column_mapping = ColumnMapping(**column_mapping)
 
+    data_type_enum = DataTypeEnum(data_type.lower())
+
     # Create annotation schema with user-defined `data_type` and default `annotation_level`
     annotation_schema = AnnotationSchema(
-        data_type=data_type,
+        data_type=data_type_enum,
         annotation_level=annotation_level,
+        missing_value_strategy=MissingValueStrategyEnum.IGNORE,  # Default to IGNORE
     )
 
     # Let `preprocess_data` handle column mapping inference
@@ -71,7 +86,7 @@ def compute_alpha(
     # Compute Krippendorff's alpha
     results = krippendorff_alpha(
         reliability_matrix,
-        data_type=preprocessed_data.annotation_schema.data_type,
+        data_type=data_type_enum,
         mapping=mapping,
         weight_dict=weight_dict,
         ordinal_scale=ordinal_scale,
