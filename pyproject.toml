@@ -16,6 +16,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bandit>=1.8.2",
+    "build>=1.2.2.post1",
     "gitpython>=3.1.44",
     "mypy>=1.14.1",
     "pylint>=3.3.4",
@@ -29,8 +30,22 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/krippendorff_alpha"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/krippendorff_alpha",
+]
+exclude = [
+    "src/krippendorff_alpha/task.py",
+    "tests",
+    "renovate.json",
+    ".gitlab-ci.yml",
+]
 
 [project.scripts]
 lint = "krippendorff_alpha.task:run_ruff"
@@ -49,7 +64,3 @@ exclude_dirs = ["tests", ".venv"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
-[tool.setuptools]
-packages = ["krippendorff_alpha"]
-package-dir = { "" = "src" }
