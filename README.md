@@ -12,8 +12,11 @@ Features (Planned & In Progress):
 
 ✔️ Fine-grained output for categorical values
 
+This project is inspired by the following open-source implementations of Krippendorff's Alpha listed below:
 
-
+- [Fast Krippendorff](https://github.com/pln-fing-udelar/fast-krippendorff)
+- [Krippendorff Alpha](https://github.com/dallascard/krippendorff_alpha)
+- [R Implementation of Krippendorff's Alpha](https://rpubs.com/jacoblong/content-analysis-krippendorff-alpha-R)
 
 ## Setup
 This project uses UV for dependency management. 
