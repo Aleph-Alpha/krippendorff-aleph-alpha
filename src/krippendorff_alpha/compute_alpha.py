@@ -51,7 +51,10 @@ def compute_alpha(
     elif isinstance(column_mapping, dict):
         column_mapping = ColumnMapping(**column_mapping)
 
-    data_type_enum = DataTypeEnum(data_type.lower())
+    try:
+        data_type_enum = DataTypeEnum(data_type.lower())
+    except ValueError:
+        raise ValueError(f"Invalid data_type '{data_type}'. Must be one of {[e.value for e in DataTypeEnum]}")
 
     # Create annotation schema with user-defined `data_type` and default `annotation_level`
     annotation_schema = AnnotationSchema(
