@@ -40,19 +40,13 @@ packages = ["src/krippendorff_alpha"]
 include = [
     "src/krippendorff_alpha",
 ]
-exclude = [
-    "src/krippendorff_alpha/task.py",
-    "tests",
-    "renovate.json",
-    ".gitlab-ci.yml",
-]
 
 [project.scripts]
-lint = "krippendorff_alpha.task:run_ruff"
-format = "krippendorff_alpha.task:run_format"
-test = "krippendorff_alpha.task:run_pytest"
-typecheck = "krippendorff_alpha.task:run_mypy"
-all = "krippendorff_alpha.task:run_all"
+lint = "infrastructure.task:run_ruff"
+format = "infrastructure.task:run_format"
+test = "infrastructure.task:run_pytest"
+typecheck = "infrastructure.task:run_mypy"
+all = "infrastructure.task:run_all"
 
 [tool.mypy]
 files = "src,tests"
