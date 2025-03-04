@@ -27,6 +27,7 @@ dev = [
     "pytest-xdist==3.6.1",
     "ruff==0.9.9",
     "toml==0.10.2",
+    "twine>=6.1.0",
 ]
 
 [build-system]

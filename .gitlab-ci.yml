@@ -1,14 +1,22 @@
 stages:
-  - lint
-  - typecheck
-  - security
-  - test
-  - release
+  - lint-tests-typecheck
+  - publish
 
 variables:
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
-  PYTHON_VERSION: "3.13"
+  UV_VERSION: 0.6
+  PYTHON_VERSION: 3.13
+  BASE_LAYER: bookworm-slim
+  # GitLab CI creates a separate mountpoint for the build directory,
+  # so we need to copy instead of using hard links.
+  UV_LINK_MODE: copy
+
+.run_on_code:
+  stage: lint-tests-typecheck
+  rules:
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - when: always
+  image: harbor.management-prod01.stackit.run/proxy-ghcr/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
 
 default:
   image: python:3.13-slim-bookworm
@@ -20,22 +28,34 @@ before_script:
   - uv sync
 
 lint:
-  stage: lint
+  extends: .run_on_code
   script:
     - uv run lint
     - uv run format --check.jsonl
 
 typecheck:
-  stage: typecheck
+  extends: .run_on_code
   script:
     - uv run typecheck
 
 security:
-  stage: security
+  extends: .run_on_code
   script:
     - uv run bandit -r src/
 
 test:
-  stage: test
+  extends: .run_on_code
   script:
     - uv run test
+
+release:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_TAG
+  image: harbor.management-prod01.stackit.run/proxy-ghcr/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
+  variables:
+    TWINE_USERNAME: gitlab-ci-token
+    TWINE_PASSWORD: $CI_JOB_TOKEN
+  script:
+    - python -m build
+    - python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
