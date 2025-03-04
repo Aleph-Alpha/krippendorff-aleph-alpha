@@ -18,15 +18,6 @@ variables:
     - when: always
   image: harbor.management-prod01.stackit.run/proxy-ghcr/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
 
-default:
-  image: python:3.13-slim-bookworm
-
-before_script:
-  - python -m pip install --upgrade pip
-  - pip install uv
-  - uv python install $PYTHON_VERSION
-  - uv sync
-
 lint:
   extends: .run_on_code
   script:
