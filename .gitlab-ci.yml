@@ -49,4 +49,4 @@ release:
     TWINE_PASSWORD: $CI_JOB_TOKEN
   script:
     - uv build
-    - uvx twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+    - uvx twine upload --verbose --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi dist/*
