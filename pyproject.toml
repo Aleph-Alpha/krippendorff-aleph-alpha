@@ -10,7 +10,7 @@ dependencies = [
     "numpy==2.2.4",
     "pandas==2.2.3",
     "pydantic==2.10.6",
-    "types-pyyaml==6.0.12.20241230",
+    "types-pyyaml==6.0.12.20250326",
 ]
 
 [dependency-groups]
