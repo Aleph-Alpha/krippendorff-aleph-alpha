@@ -55,4 +55,4 @@ word_column_aliases:
   - tokens
   - words
 
-annotator_regex: "^(annotator[_\\s]*\\d+|Annotator[_\\s]*\\d+|annotator one|Annotator one)$"
+annotator_regex: "^(annotator|annotation|label|rater|coder)[_\\s]*[a-zA-Z0-9]+$"
