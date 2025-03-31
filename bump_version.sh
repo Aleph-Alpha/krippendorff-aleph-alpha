@@ -10,5 +10,6 @@ git branch -f auto-bump-version
 git add pyproject.toml
 git commit -m "chore(ci): bump version to $v_new"
 git tag -a "$v_new" -m "$v_new"
+git push --tags
 git push --set-upstream origin auto-bump-version -o merge_request.create -o merge_request.merge_when_pipeline_succeeds
 
