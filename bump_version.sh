@@ -6,7 +6,7 @@ uvx --from bump2version bumpversion --allow-dirty --current-version "$v" "$part"
 
 v_new=$(uvx --from=toml-cli toml get --toml-path=pyproject.toml project.version)
 
-git branch -f auto-bump-version-${v_new}
+git checkout -b auto-bump-version-${v_new}
 git add pyproject.toml
 git commit -m "chore(ci): bump version to $v_new"
 git tag -a "$v_new" -m "$v_new"
