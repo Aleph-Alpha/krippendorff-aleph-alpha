@@ -149,7 +149,7 @@ wheels = [
 
 [[package]]
 name = "krippendorff-aleph-alpha"
-version = "0.1.13"
+version = "0.1.15"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
@@ -179,7 +179,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2.4" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "pydantic", specifier = ">=2.11.1" },
-    { name = "types-pyyaml", specifier = ">=6.0.12" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20250326" },
 ]
 
 [package.metadata.requires-dev]
