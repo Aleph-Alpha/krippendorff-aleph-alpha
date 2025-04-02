@@ -10,7 +10,7 @@
     "enabled": true
   },
   "minimumReleaseAge": "3 days",
-  "rangeStrategy": "replace",
+  "rangeStrategy": "bump",
   "packageRules": [
     {
       "automerge": true,
