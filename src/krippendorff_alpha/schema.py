@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import List, Optional, Dict, Any, Union
+from typing import Any
 import pandas as pd
 import enum
 
@@ -27,14 +27,14 @@ class AnnotationLevelEnum(str, enum.Enum):
 
 
 class ColumnMapping(BaseModel):
-    text_col: Optional[str] = Field(None, description="Column containing the text being annotated.")
-    annotator_cols: Optional[List[str]] = Field(
+    text_col: str | None = Field(None, description="Column containing the text being annotated.")
+    annotator_cols: list[str] | None = Field(
         None, description="List of annotator columns. If None, it will be inferred."
     )
 
     @field_validator("annotator_cols", mode="before")
     @classmethod
-    def validate_annotator_cols(cls, v: Optional[Union[List[str], str]]) -> Optional[List[str]]:
+    def validate_annotator_cols(cls, v: list[str] | None) -> list[str] | None:
         if v is None:
             return None  # Allow None for later inference
 
@@ -48,19 +48,15 @@ class ColumnMapping(BaseModel):
 
 
 class AnnotationSchema(BaseModel):
-    data_type: Union[str, DataTypeEnum] = Field(
-        ..., description="Type of annotation: nominal, ordinal, interval, or ratio."
-    )
-    missing_value_strategy: Union[str, MissingValueStrategyEnum] = Field(
+    data_type: str | DataTypeEnum = Field(..., description="Type of annotation: nominal, ordinal, interval, or ratio.")
+    missing_value_strategy: str | MissingValueStrategyEnum = Field(
         MissingValueStrategyEnum.IGNORE, description="Strategy to handle missing values (ignore, drop, fill)."
     )
-    annotation_level: Union[str, AnnotationLevelEnum] = Field(
-        ..., description="Annotation level: text_level or token_level."
-    )
+    annotation_level: str | AnnotationLevelEnum = Field(..., description="Annotation level: text_level or token_level.")
 
     @field_validator("data_type", mode="before")
     @classmethod
-    def validate_data_type(cls, v: Union[str, DataTypeEnum]) -> DataTypeEnum:
+    def validate_data_type(cls, v: str | DataTypeEnum) -> DataTypeEnum:
         if isinstance(v, DataTypeEnum):
             return v  # Already an enum, return as is
         try:
@@ -70,7 +66,7 @@ class AnnotationSchema(BaseModel):
 
     @field_validator("missing_value_strategy", mode="before")
     @classmethod
-    def validate_missing_value_strategy(cls, v: Union[str, MissingValueStrategyEnum]) -> MissingValueStrategyEnum:
+    def validate_missing_value_strategy(cls, v: str | MissingValueStrategyEnum) -> MissingValueStrategyEnum:
         if isinstance(v, MissingValueStrategyEnum):
             return v
         try:
@@ -80,7 +76,7 @@ class AnnotationSchema(BaseModel):
 
     @field_validator("annotation_level", mode="before")
     @classmethod
-    def validate_annotation_level(cls, v: Union[str, AnnotationLevelEnum]) -> AnnotationLevelEnum:
+    def validate_annotation_level(cls, v: str | AnnotationLevelEnum) -> AnnotationLevelEnum:
         if isinstance(v, AnnotationLevelEnum):
             return v
         try:
@@ -88,7 +84,7 @@ class AnnotationSchema(BaseModel):
         except ValueError:
             raise ValueError(f"Invalid annotation_level: {v}. Must be one of {list(AnnotationLevelEnum)}.")
 
-    def get_data_type_mapping(self, annotator_cols: List[str]) -> Dict[str, DataTypeEnum]:
+    def get_data_type_mapping(self, annotator_cols: list[str]) -> dict[str, DataTypeEnum]:
         return {col: DataTypeEnum(self.data_type) for col in annotator_cols}  # Convert to Enum explicitly
 
 
@@ -114,6 +110,6 @@ class PreprocessedData(BaseModel):
     df: pd.DataFrame = Field(..., description="Preprocessed Pandas DataFrame ready for analysis.")
     column_mapping: ColumnMapping
     annotation_schema: AnnotationSchema
-    ordinal_mappings: Dict[str, Any]
-    nominal_mappings: Dict[str, Any]
+    ordinal_mappings: dict[str, Any]
+    nominal_mappings: dict[str, Any]
     model_config = ConfigDict(arbitrary_types_allowed=True)

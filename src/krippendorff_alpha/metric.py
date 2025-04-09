@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import logging
-from typing import Optional, Dict, Any, Union, List, Tuple, Callable
+from typing import Any, Callable
 
 from krippendorff_alpha.schema import DataTypeEnum
 from krippendorff_alpha.constants import ANNOTATOR_REGEX
@@ -10,13 +10,11 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-def nominal_distance(a: Union[int, float, str], b: Union[int, float, str]) -> float:
+def nominal_distance(a: int | float | str, b: int | float | str) -> float:
     return float(0 if a == b else 1)
 
 
-def ordinal_distance(
-    a: Union[int, float, str], b: Union[int, float, str], scale: Optional[List[Union[int, float, str]]] = None
-) -> float:
+def ordinal_distance(a: int | float | str, b: int | float | str, scale: list[int | float | str] | None = None) -> float:
     if scale is None or a not in scale or b not in scale:
         return float(nominal_distance(a, b))
 
@@ -34,16 +32,14 @@ def ratio_distance(a: float, b: float) -> float:
     return (a - b) ** 2 / (a + b)
 
 
-def reverse_map(
-    value: Union[int, float, str], mapping: Optional[Dict[str, Union[int, float]]]
-) -> Union[int, float, str]:
+def reverse_map(value: int | float | str, mapping: dict[str, int | float] | None) -> int | float | str:
     if mapping is None:
         return value
 
     if not all(isinstance(k, str) and isinstance(v, (int, float)) for k, v in mapping.items()):
         raise TypeError("Mapping dictionary must have string keys and numeric (int or float) values.")
 
-    reversed_mapping: Dict[Union[int, float], str] = {v: k for k, v in mapping.items()}
+    reversed_mapping: dict[int | float, str] = {v: k for k, v in mapping.items()}
 
     if isinstance(value, (int, float)):
         return reversed_mapping.get(value, str(value))
@@ -58,7 +54,7 @@ def parse_annotator_name(name: str) -> str:
 
 
 def compute_weight_vector(
-    df: pd.DataFrame, weight_dict: Optional[Dict[str, float]]
+    df: pd.DataFrame, weight_dict: dict[str, float] | None
 ) -> np.ndarray[Any, np.dtype[np.float64]]:
     k = len(df.index)
     weight_vector = np.ones(k)
@@ -75,11 +71,11 @@ def compute_observed_disagreement(
     weight_vector: np.ndarray[Any, np.dtype[np.float64]],
     distance_fn: Callable[[Any, Any], float],
     data_type: DataTypeEnum,
-) -> Tuple[float, Dict[int, float], Dict[int, int]]:
+) -> tuple[float, dict[int, float], dict[int, int]]:
     n, k = reliability_matrix.shape
     observed_disagreement = 0.0
-    per_category_obs_dis: Dict[int, float] = {}
-    pairwise_counts: Dict[int, int] = {}
+    per_category_obs_dis: dict[int, float] = {}
+    pairwise_counts: dict[int, int] = {}
 
     total_comparisons = 0  # Keep track of the number of comparisons
 
@@ -107,9 +103,9 @@ def compute_expected_disagreement(
     reliability_matrix: np.ndarray[Any, np.dtype[np.float64]],
     distance_fn: Callable[[Any, Any], float],
     data_type: DataTypeEnum,
-) -> Tuple[float, Dict[int, float]]:
+) -> tuple[float, dict[int, float]]:
     expected_disagreement = 0.0
-    per_category_exp_dis: Dict[int, float] = {}
+    per_category_exp_dis: dict[int, float] = {}
 
     unique_values, counts = np.unique(reliability_matrix[~np.isnan(reliability_matrix)], return_counts=True)
     total_values = counts.sum()
@@ -130,11 +126,11 @@ def compute_expected_disagreement(
 
 def compute_per_category_scores(
     unique_values: np.ndarray[Any, np.dtype[np.number]],
-    per_category_obs_dis: Dict[int, float],
-    per_category_exp_dis: Dict[int, float],
-    pairwise_counts: Dict[int, int],
-    mapping: Optional[Dict[str, Union[int, float]]],
-) -> Dict[Union[str, int], Dict[str, float]]:
+    per_category_obs_dis: dict[int, float],
+    per_category_exp_dis: dict[int, float],
+    pairwise_counts: dict[int, int],
+    mapping: dict[str, int | float] | None,
+) -> dict[str | int, dict[str, float]]:
     per_category_scores = {}
     for category in unique_values:
         category_value = category.item()
@@ -169,10 +165,10 @@ def compute_per_category_scores(
 def krippendorff_alpha(
     df: pd.DataFrame,
     data_type: DataTypeEnum,
-    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
-    mapping: Optional[Dict[str, Union[int, float]]] = None,
-    weight_dict: Optional[Dict[str, float]] = None,
-) -> Dict[str, Any]:
+    ordinal_scale: list[int | float | str] | None = None,
+    mapping: dict[str, int | float] | None = None,
+    weight_dict: dict[str, float] | None = None,
+) -> dict[str, Any]:
     """
     Computes Krippendorff's alpha reliability coefficient for assessing inter-annotator agreement.
 

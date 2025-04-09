@@ -1,12 +1,12 @@
 import yaml
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 CONFIG_DIR = Path(__file__).parent / "config"
 
 
-def load_yaml(file_name: str) -> Dict[str, Any]:
+def load_yaml(file_name: str) -> dict[str, Any]:
     """Loads a YAML file and returns its contents as a dictionary."""
     file_path = CONFIG_DIR / file_name
     with open(file_path, "r", encoding="utf-8") as file:
@@ -17,7 +17,7 @@ def load_yaml(file_name: str) -> Dict[str, Any]:
     return data
 
 
-MAIN_CONFIG: Dict[str, Any] = load_yaml("config_en.yaml")
+MAIN_CONFIG: dict[str, Any] = load_yaml("config_en.yaml")
 
 
 ORDINAL_CATEGORIES: list[list[str]] = [

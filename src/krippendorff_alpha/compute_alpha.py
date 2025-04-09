@@ -1,4 +1,4 @@
-from typing import Optional, Any, Dict, List, Union
+from typing import Any
 import pandas as pd
 import json
 from krippendorff_alpha.metric import krippendorff_alpha
@@ -16,10 +16,10 @@ from krippendorff_alpha.schema import (
 def compute_alpha(
     df: pd.DataFrame,
     data_type: str,
-    column_mapping: Optional[Union[ColumnMapping, Dict[str, Any]]] = None,
+    column_mapping: ColumnMapping | dict[str, Any] | None = None,
     annotation_level: str = AnnotationLevelEnum.TEXT_LEVEL,
-    weight_dict: Optional[Dict[str, float]] = None,
-    ordinal_scale: Optional[List[Union[int, float, str]]] = None,
+    weight_dict: dict[str, float] | None = None,
+    ordinal_scale: list[int | float | str] | None = None,
 ) -> Any:
     """
     Computes Krippendorff's alpha for inter-annotator agreement.

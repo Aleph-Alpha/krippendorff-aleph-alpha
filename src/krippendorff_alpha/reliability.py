@@ -1,6 +1,5 @@
 import pandas as pd
 import logging
-from typing import Optional
 from krippendorff_alpha.schema import ColumnMapping
 from krippendorff_alpha.preprocessing import detect_annotator_columns, detect_column
 from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
@@ -9,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def compute_reliability_matrix(
-    df: pd.DataFrame, column_mapping: Optional[ColumnMapping] = None, text_col: Optional[str] = None
+    df: pd.DataFrame, column_mapping: ColumnMapping | None = None, text_col: str | None = None
 ) -> pd.DataFrame:
     """
     Computes the reliability matrix for the given DataFrame.
