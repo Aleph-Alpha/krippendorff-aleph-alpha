@@ -1,6 +1,6 @@
 import pandas as pd
 import logging
-from typing import Optional, List, Tuple, Any
+from typing import Any
 
 from krippendorff_alpha.constants import (
     TEXT_COLUMN_ALIASES,
@@ -20,17 +20,17 @@ from krippendorff_alpha.schema import (
 logging.basicConfig(level=logging.INFO)
 
 
-def detect_column(df: pd.DataFrame, column_aliases: set[str]) -> Optional[str]:
+def detect_column(df: pd.DataFrame, column_aliases: set[str]) -> str | None:
     matches = [col for col in df.columns if col.lower().strip() in {name.lower() for name in column_aliases}]
     return matches[0] if matches else None
 
 
-def detect_annotator_columns(df: pd.DataFrame) -> List[str]:
+def detect_annotator_columns(df: pd.DataFrame) -> list[str]:
     return [col for col in df.columns if ANNOTATOR_REGEX.match(col)]
 
 
 def create_global_mapping(
-    df: pd.DataFrame, annotator_cols: List[str], data_type: str
+    df: pd.DataFrame, annotator_cols: list[str], data_type: str
 ) -> dict[Any, int] | dict[Any, str]:
     """Creates a unified mapping across all annotator columns to ensure consistency."""
     unique_values = set()
@@ -58,7 +58,7 @@ def preprocess_data(
     df: pd.DataFrame,
     column_mapping: ColumnMapping,
     annotation_schema: AnnotationSchema,
-) -> Tuple[PreprocessedData, str]:
+) -> tuple[PreprocessedData, str]:
     """
     Preprocesses annotation data by detecting relevant columns, mapping categorical labels to numeric values,
     and handling missing values based on the specified annotation schema.

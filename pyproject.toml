@@ -1,6 +1,6 @@
 [project]
 name = "krippendorff-aleph-alpha"
-version = "0.1.15"
+version = "0.1.16"
 authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
 description = "A robust implementation of Krippendorff's Alpha"
 readme = "README.md"
@@ -10,6 +10,7 @@ dependencies = [
     "numpy>=2.2.4",
     "pandas>=2.2.3",
     "pydantic>=2.11.2",
+    "pyyaml>=6.0.2",
     "types-pyyaml>=6.0.12.20250402",
 ]
 
