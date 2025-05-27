@@ -1,6 +1,6 @@
 [project]
 name = "krippendorff-aleph-alpha"
-version = "0.1.16"
+version = "0.1.17"
 authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
 description = "A robust implementation of Krippendorff's Alpha"
 readme = "README.md"
