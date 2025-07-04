@@ -25,7 +25,7 @@ dev = [
     "pytest-benchmark==5.1.0",
     "pytest-cov==6.2.1",
     "pytest-mock==3.14.1",
-    "pytest-xdist==3.7.0",
+    "pytest-xdist==3.8.0",
     "ruff==0.12.1",
     "toml==0.10.2",
 ]
