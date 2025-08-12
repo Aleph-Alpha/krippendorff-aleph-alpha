@@ -205,7 +205,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.1" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "pyyaml", specifier = ">=6.0.2" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20250516" },
+    { name = "types-pyyaml", specifier = ">=6.0.12.20250809" },
 ]
 
 [package.metadata.requires-dev]
