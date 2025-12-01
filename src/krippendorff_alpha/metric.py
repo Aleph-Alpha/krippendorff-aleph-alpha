@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import logging
 from functools import partial
@@ -132,7 +133,7 @@ def parse_annotator_name(name: str) -> str:
 
 def compute_weight_vector(
     df: pd.DataFrame, weight_dict: dict[str, float] | None
-) -> np.ndarray[Any, np.dtype[np.float64]]:
+) -> npt.NDArray[np.float64]:
     """
     Compute weight vector for annotators.
 
@@ -166,8 +167,8 @@ def _calculate_unit_weight(m_u: int) -> float:
 
 
 def _process_unit_pairs(
-    annotator_values: np.ndarray[np.dtype[np.float64]],
-    weight_vector: np.ndarray[np.dtype[np.float64]],
+    annotator_values: npt.NDArray[np.float64],
+    weight_vector: npt.NDArray[np.float64],
     distance_fn: Callable[[float, float], float],
     unit_weight: float,
     data_type: DataTypeEnum,
@@ -210,8 +211,8 @@ def _process_unit_pairs(
 
 
 def compute_observed_disagreement(
-    reliability_matrix: np.ndarray[np.dtype[np.float64]],
-    weight_vector: np.ndarray[np.dtype[np.float64]],
+    reliability_matrix: npt.NDArray[np.float64],
+    weight_vector: npt.NDArray[np.float64],
     distance_fn: Callable[[float, float], float],
     data_type: DataTypeEnum,
 ) -> tuple[float, dict[int, float], dict[int, int]]:
@@ -237,7 +238,7 @@ def compute_observed_disagreement(
     Returns:
         Tuple of (observed_disagreement, per_category_observed_disagreement, pairwise_counts)
     """
-    _, num_units = reliability_matrix.shape
+    num_units: int = reliability_matrix.shape[1]
     observed_disagreement = 0.0
     per_category_obs_dis: dict[int, float] = {}
     pairwise_counts: dict[int, int] = {}
@@ -275,7 +276,7 @@ def compute_observed_disagreement(
 
 
 def compute_expected_disagreement(
-    reliability_matrix: np.ndarray[np.dtype[np.float64]],
+    reliability_matrix: npt.NDArray[np.float64],
     distance_fn: Callable[[float, float], float],
     data_type: DataTypeEnum,
 ) -> tuple[float, dict[int, float]]:
@@ -326,7 +327,7 @@ def compute_expected_disagreement(
 
 
 def compute_per_category_scores(
-    unique_values: np.ndarray[Any, np.dtype[np.number]],
+    unique_values: npt.NDArray[Any],
     per_category_obs_dis: dict[int, float],
     per_category_exp_dis: dict[int, float],
     pairwise_counts: dict[int, int],
@@ -400,15 +401,18 @@ def krippendorff_alpha(
     weight_vector = compute_weight_vector(df, weight_dict)
     logger.info(f"Weight vector: {weight_vector}")
 
-    distance_fn = {
-        DataTypeEnum.NOMINAL: nominal_distance,
-        DataTypeEnum.ORDINAL: partial(ordinal_distance, scale=ordinal_scale),
-        DataTypeEnum.INTERVAL: interval_distance,
-        DataTypeEnum.RATIO: ratio_distance,
-    }.get(data_type)
-
-    if distance_fn is None:
+    distance_fn: Callable[[float, float], float]
+    if data_type == DataTypeEnum.NOMINAL:
+        distance_fn = nominal_distance
+    elif data_type == DataTypeEnum.ORDINAL:
+        distance_fn = partial(ordinal_distance, scale=ordinal_scale)
+    elif data_type == DataTypeEnum.INTERVAL:
+        distance_fn = interval_distance
+    elif data_type == DataTypeEnum.RATIO:
+        distance_fn = ratio_distance
+    else:
         raise ValueError(f"Unsupported data type: {data_type}")
+    
     observed_disagreement, per_category_obs_dis, pairwise_counts = compute_observed_disagreement(
         reliability_matrix, weight_vector, distance_fn, data_type
     )

@@ -70,28 +70,39 @@ class AnnotationSchema(BaseModel):
         """
         if isinstance(v, enum_class):
             return v
-        try:
-            return enum_class(v.lower())
-        except ValueError:
-            valid_values = [e.value for e in enum_class]
-            raise ValueError(
-                f"Invalid {field_name}: {v}. Must be one of {valid_values}."
-            )
+        if isinstance(v, str):
+            try:
+                return enum_class(v.lower())
+            except ValueError:
+                valid_values = [e.value for e in enum_class]
+                raise ValueError(
+                    f"Invalid {field_name}: {v}. Must be one of {valid_values}."
+                )
+        valid_values = [e.value for e in enum_class]
+        raise ValueError(
+            f"Invalid {field_name}: {v}. Must be one of {valid_values}."
+        )
 
     @field_validator("data_type", mode="before")
     @classmethod
     def validate_data_type(cls, v: str | DataTypeEnum) -> DataTypeEnum:
-        return cls._validate_enum_field(v, DataTypeEnum, "data_type")
+        result = cls._validate_enum_field(v, DataTypeEnum, "data_type")
+        assert isinstance(result, DataTypeEnum)
+        return result
 
     @field_validator("missing_value_strategy", mode="before")
     @classmethod
     def validate_missing_value_strategy(cls, v: str | MissingValueStrategyEnum) -> MissingValueStrategyEnum:
-        return cls._validate_enum_field(v, MissingValueStrategyEnum, "missing_value_strategy")
+        result = cls._validate_enum_field(v, MissingValueStrategyEnum, "missing_value_strategy")
+        assert isinstance(result, MissingValueStrategyEnum)
+        return result
 
     @field_validator("annotation_level", mode="before")
     @classmethod
     def validate_annotation_level(cls, v: str | AnnotationLevelEnum) -> AnnotationLevelEnum:
-        return cls._validate_enum_field(v, AnnotationLevelEnum, "annotation_level")
+        result = cls._validate_enum_field(v, AnnotationLevelEnum, "annotation_level")
+        assert isinstance(result, AnnotationLevelEnum)
+        return result
 
     def get_data_type_mapping(self, annotator_cols: list[str]) -> dict[str, DataTypeEnum]:
         return {col: DataTypeEnum(self.data_type) for col in annotator_cols}

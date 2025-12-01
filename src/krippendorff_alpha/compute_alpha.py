@@ -108,4 +108,4 @@ def compute_alpha(
     if config_path is not None:
         reset_config()
 
-    return results
+    return dict(results)
