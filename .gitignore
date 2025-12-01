@@ -19,6 +19,7 @@ wheels/
 # IDE
 .vscode/
 .idea
+.cursor/
 
 # mypy
 .mypy_cache/
@@ -27,7 +28,6 @@ dmypy.json
 
 # Jupyter Notebook
 .ipynb_checkpoints
-.gitlab-ci-local/
 
 # Ignore test-generated reliability matrices
 tests/storage/

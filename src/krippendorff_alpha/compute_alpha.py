@@ -1,6 +1,6 @@
 from typing import Any
 import pandas as pd
-import json
+import logging
 from krippendorff_alpha.metric import krippendorff_alpha
 from krippendorff_alpha.preprocessing import preprocess_data
 from krippendorff_alpha.reliability import compute_reliability_matrix
@@ -11,6 +11,10 @@ from krippendorff_alpha.schema import (
     MissingValueStrategyEnum,
     DataTypeEnum,
 )
+from krippendorff_alpha.constants import MIN_ANNOTATORS_REQUIRED, load_custom_config, reset_config
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def compute_alpha(
@@ -20,7 +24,8 @@ def compute_alpha(
     annotation_level: str = AnnotationLevelEnum.TEXT_LEVEL,
     weight_dict: dict[str, float] | None = None,
     ordinal_scale: list[int | float | str] | None = None,
-) -> Any:
+    config_path: str | Path | None = None,
+) -> dict[str, Any]:
     """
     Computes Krippendorff's alpha for inter-annotator agreement.
 
@@ -32,19 +37,26 @@ def compute_alpha(
     - annotation_level (str, default="text_level"): The level of annotation (e.g., "text_level", "token_level").
     - weight_dict (Optional[Dict[str, float]]): A dictionary specifying weights for individual annotators (if applicable).
     - ordinal_scale: Optional[List[Union[int, float, str]]]: A list defining an ordinal scale if the data type is ordinal.
+    - config_path (Optional[str | Path]): Path to a custom YAML configuration file. If None, uses default English config.
 
     Returns:
-    - Any: A dictionary containing Krippendorff's alpha, observed and expected disagreement, and per-category scores.
+    - dict[str, Any]: A dictionary containing Krippendorff's alpha, observed and expected disagreement, and per-category scores.
     """
 
     if df is None:
         raise ValueError("A valid DataFrame (df) must be provided.")
 
+    custom_config = None
+    if config_path is not None:
+        custom_config = load_custom_config(config_path)
+
     if column_mapping is None:
         inferred_text_col = next((col for col in df.columns if df[col].dtype == "object"), None)
         inferred_annotator_cols = [col for col in df.columns if col != inferred_text_col]
-        if len(inferred_annotator_cols) < 3:
-            raise ValueError("At least three annotator columns are required for reliability assessment.")
+        if len(inferred_annotator_cols) < MIN_ANNOTATORS_REQUIRED:
+            raise ValueError(
+                f"At least {MIN_ANNOTATORS_REQUIRED} annotator columns are required for reliability assessment."
+            )
 
         column_mapping = ColumnMapping(text_col=inferred_text_col, annotator_cols=inferred_annotator_cols)
 
@@ -56,37 +68,32 @@ def compute_alpha(
     except ValueError:
         raise ValueError(f"Invalid data_type '{data_type}'. Must be one of {[e.value for e in DataTypeEnum]}")
 
-    # Create annotation schema with user-defined `data_type` and default `annotation_level`
     annotation_schema = AnnotationSchema(
         data_type=data_type_enum,
         annotation_level=annotation_level,
-        missing_value_strategy=MissingValueStrategyEnum.IGNORE,  # Default to IGNORE
+        missing_value_strategy=MissingValueStrategyEnum.IGNORE,
     )
 
-    # Let `preprocess_data` handle column mapping inference
-    preprocessed_data, text_col = preprocess_data(df, column_mapping, annotation_schema)
+    preprocessed_data, text_col = preprocess_data(df, column_mapping, annotation_schema, custom_config)
 
-    # Convert mappings to string keys (for compatibility)
     if preprocessed_data.nominal_mappings:
-        print(preprocessed_data.nominal_mappings)
+        logger.debug(f"Nominal mappings: {preprocessed_data.nominal_mappings}")
         preprocessed_data.nominal_mappings = {str(k): v for k, v in preprocessed_data.nominal_mappings.items()}
 
     if preprocessed_data.ordinal_mappings:
         preprocessed_data.ordinal_mappings = {str(k): v for k, v in preprocessed_data.ordinal_mappings.items()}
 
-    # Select appropriate mapping
-    mapping = (
-        preprocessed_data.nominal_mappings
-        if preprocessed_data.annotation_schema.data_type == "nominal"
-        else preprocessed_data.ordinal_mappings
-        if preprocessed_data.annotation_schema.data_type == "ordinal"
-        else None
+    if preprocessed_data.annotation_schema.data_type == DataTypeEnum.NOMINAL:
+        mapping = preprocessed_data.nominal_mappings
+    elif preprocessed_data.annotation_schema.data_type == DataTypeEnum.ORDINAL:
+        mapping = preprocessed_data.ordinal_mappings
+    else:
+        mapping = None
+
+    reliability_matrix = compute_reliability_matrix(
+        preprocessed_data.df, preprocessed_data.column_mapping, text_col, custom_config
     )
 
-    # Compute reliability matrix
-    reliability_matrix = compute_reliability_matrix(preprocessed_data.df, preprocessed_data.column_mapping, text_col)
-
-    # Compute Krippendorff's alpha
     results = krippendorff_alpha(
         reliability_matrix,
         data_type=data_type_enum,
@@ -96,6 +103,9 @@ def compute_alpha(
     )
 
     if results.get("per_category_scores") is None:
-        del results["per_category_scores"]
+        results.pop("per_category_scores", None)
 
-    return json.dumps(results, indent=4)
+    if config_path is not None:
+        reset_config()
+
+    return results

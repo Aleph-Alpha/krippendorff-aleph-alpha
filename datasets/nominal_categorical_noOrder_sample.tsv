@@ -1,0 +1,36 @@
+text	entity	annotator1	annotator2	annotator3	annotator4	annotator5	annotator6	annotator7
+Apple is a tech company.	Apple	B-ORG	B-ORG	B-ORG	B-ORG	B-PERSON	B-ORG	B-ORG
+Apple is a tech company.	is	O	O	O	O	O	O	O
+Apple is a tech company.	a	O	O	O	O	O	O	O
+Apple is a tech company.	tech	O	O	B-ORG	O	O	O	O
+Apple is a tech company.	company	O	O	O	O	O	O	O
+New York is known for its landmarks.	New	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC
+New York is known for its landmarks.	York	I-LOC	I-LOC	I-LOC	I-LOC	I-LOC	I-LOC	I-LOC
+New York is known for its landmarks.	is	O	O	O	O	O	O	O
+New York is known for its landmarks.	known	O	O	O	O	O	O	O
+New York is known for its landmarks.	for	O	O	O	O	O	O	O
+New York is known for its landmarks.	its	O	O	O	O	O	O	O
+New York is known for its landmarks.	landmarks	O	B-LOC	O	O	B-LOC	O	O
+John went to the store.	John	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON
+John went to the store.	went	O	O	O	O	O	O	O
+John went to the store.	to	O	O	O	O	O	O	O
+John went to the store.	the	O	O	O	O	O	O	O
+John went to the store.	store	O	B-LOC	O	O	O	B-LOC	O
+Google was founded in 1998.	Google	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG
+Google was founded in 1998.	was	O	O	O	O	O	O	O
+Google was founded in 1998.	founded	O	O	O	O	O	O	O
+Google was founded in 1998.	in	O	O	O	O	O	O	O
+Google was founded in 1998.	1998	O	O	O	O	O	O	O
+Elon Musk is the CEO of Tesla.	Elon	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON	B-PERSON
+Elon Musk is the CEO of Tesla.	Musk	I-PERSON	I-PERSON	I-PERSON	I-PERSON	I-PERSON	I-PERSON	I-PERSON
+Elon Musk is the CEO of Tesla.	is	O	O	O	O	O	O	O
+Elon Musk is the CEO of Tesla.	the	O	O	O	O	O	O	O
+Elon Musk is the CEO of Tesla.	CEO	O	O	O	O	O	O	O
+Elon Musk is the CEO of Tesla.	of	O	O	O	O	O	O	O
+Elon Musk is the CEO of Tesla.	Tesla	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG	B-ORG
+Paris is the capital of France.	Paris	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC
+Paris is the capital of France.	is	O	O	O	O	O	O	O
+Paris is the capital of France.	the	O	O	O	O	O	O	O
+Paris is the capital of France.	capital	O	O	O	O	O	O	O
+Paris is the capital of France.	of	O	O	O	O	O	O	O
+Paris is the capital of France.	France	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC	B-LOC

@@ -2,9 +2,19 @@
 name = "krippendorff-aleph-alpha"
 version = "0.1.17"
 authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
-description = "A robust implementation of Krippendorff's Alpha"
+description = "A robust implementation of Krippendorff's Alpha for inter-annotator agreement"
 readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.13"
+keywords = ["krippendorff", "alpha", "inter-annotator", "agreement", "reliability", "statistics"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
 
 dependencies = [
     "numpy>=2.3.5",
@@ -59,3 +69,6 @@ exclude_dirs = ["tests", ".venv"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::pytest_benchmark.logger.PytestBenchmarkWarning",
+]

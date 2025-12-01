@@ -32,6 +32,12 @@ ordinal_categories:
     - [ "Under 18", "18-24", "25-34", "35-44", "45+" ]
   quality_scores:
     - [ "Very Poor", "Poor", "Average", "Good", "Excellent" ]
+  priority_levels:
+    - [ "Lowest", "Low", "Medium", "High", "Highest" ]
+    - [ "Not Important", "Somewhat Important", "Important", "Very Important", "Critical" ]
+  performance_ratings:
+    - [ "Unsatisfactory", "Needs Improvement", "Meets Expectations", "Exceeds Expectations", "Outstanding" ]
+    - [ "Below Average", "Average", "Above Average", "Excellent", "Exceptional" ]
 
 text_column_aliases:
   - text
@@ -46,6 +52,16 @@ text_column_aliases:
   - sentences
   - documents
   - paragraphs
+  - content
+  - Content
+  - message
+  - Message
+  - input
+  - Input
+  - data
+  - Data
+  - item
+  - Item
 
 word_column_aliases:
   - word
@@ -54,5 +70,11 @@ word_column_aliases:
   - Token
   - tokens
   - words
+  - entity
+  - Entity
+  - span
+  - Span
+  - chunk
+  - Chunk
 
 annotator_regex: "^(annotator|annotation|label|rater|coder)[_\\s]*[a-zA-Z0-9]+$"

@@ -1,14 +1,18 @@
 import pandas as pd
 import logging
+from typing import Any
 from krippendorff_alpha.schema import ColumnMapping
 from krippendorff_alpha.preprocessing import detect_annotator_columns, detect_column
-from krippendorff_alpha.constants import TEXT_COLUMN_ALIASES
+from krippendorff_alpha.constants import get_text_column_aliases
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def compute_reliability_matrix(
-    df: pd.DataFrame, column_mapping: ColumnMapping | None = None, text_col: str | None = None
+    df: pd.DataFrame,
+    column_mapping: ColumnMapping | None = None,
+    text_col: str | None = None,
+    custom_config: dict[str, Any] | None = None,
 ) -> pd.DataFrame:
     """
     Computes the reliability matrix for the given DataFrame.
@@ -22,25 +26,24 @@ def compute_reliability_matrix(
     - pd.DataFrame: The transposed reliability matrix with annotator columns as rows and text indices as columns.
     """
 
-    logging.info("Starting computation of reliability matrix.")
+    logger.info("Starting computation of reliability matrix.")
 
-    # Detect columns if column_mapping is not provided
-    annotator_cols = column_mapping.annotator_cols if column_mapping else detect_annotator_columns(df)
-    text_col = text_col or (column_mapping.text_col if column_mapping else detect_column(df, TEXT_COLUMN_ALIASES))
+    annotator_cols = column_mapping.annotator_cols if column_mapping else detect_annotator_columns(df, custom_config)
+    text_col_aliases = get_text_column_aliases(custom_config)
+    text_col = text_col or (column_mapping.text_col if column_mapping else detect_column(df, text_col_aliases))
 
-    logging.info(f"Detected annotator columns: {annotator_cols}")
-    logging.info(f"Detected text column: {text_col}")
+    logger.info(f"Detected annotator columns: {annotator_cols}")
+    logger.info(f"Detected text column: {text_col}")
 
     if not annotator_cols or text_col not in df.columns:
-        logging.error("Missing annotator columns or a valid text column in the data.")
+        logger.error("Missing annotator columns or a valid text column in the data.")
         raise ValueError("Missing annotator columns or a valid text column in the data.")
 
-    # Convert DataFrame to reliability matrix format
     annotator_matrix = df[annotator_cols].to_numpy()
     text_index = df[text_col].to_numpy()
 
     reliability_matrix = pd.DataFrame(annotator_matrix, columns=annotator_cols, index=text_index)
 
-    logging.info(f"Reliability matrix computed with shape {reliability_matrix.shape}.")
+    logger.info(f"Reliability matrix computed with shape {reliability_matrix.shape}.")
 
     return reliability_matrix.T

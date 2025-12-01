@@ -1,0 +1,11 @@
+text	annotator1	annotator2	annotator3	annotator4	annotator5	annotator6	annotator7	annotator8
+The cat sat.	60.0	55.0	58.0	59.0	57.0	56.0	60.0	58.0
+Complex passage	40.0	50.0	42.0	48.0	45.0	43.0	47.0	46.0
+Scientific paper	20.0	22.0	21.0	19.0	20.0	21.0	22.0	20.0
+An interesting article	65.0	70.0	68.0	66.0	67.0	69.0	65.0	68.0
+Difficult to understand.	30.0	35.0	33.0	32.0	34.0	31.0	33.0	32.0
+A simple sentence.	75.0	78.0	74.0	77.0	76.0	75.0	77.0	76.0
+Philosophical argument	35.0	38.0	36.0	37.0	36.0	37.0	38.0	35.0
+Breaking news report	50.0	55.0	52.0	53.0	54.0	51.0	53.0	52.0
+Poetic verse	45.0	47.0	44.0	46.0	45.0	46.0	47.0	45.0
+A legal document	25.0	30.0	28.0	27.0	29.0	26.0	28.0	27.0

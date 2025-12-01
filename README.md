@@ -1,8 +1,7 @@
-# Krippendorff's Aleph Alpha
+# Krippendorff's Alpha
 
+A Python implementation of Krippendorff's Alpha, a statistical measure of inter-rater reliability designed for various data types (Nominal, Ordinal, Interval, and Ratio). 
 
-This repository contains an implementation of Krippendorff’s Alpha, a statistical measure of inter-rater reliability designed for various data types (Nominal, Ordinal, Interval, and Ratio). 
-Features (Planned & In Progress):
 
 ✔️ Support for multiple data types (Nominal, Ordinal, etc.)
 
@@ -37,8 +36,10 @@ uv run
 Set Python interpreter in IDE:
 
 ```bash
-krippendorff-aleph-alpha/.venv/bin/python3.13
+.venv/bin/python3.13
 ```
+
+**Note:** This project requires Python 3.13 or higher.
 
 Done. You're set up!
 
@@ -53,22 +54,62 @@ The project is structured to ensure **modularity, scalability, and ease of use**
 - **`src/krippendorff_alpha/`**  
   Contains the core implementation of Krippendorff's Alpha, including modules for preprocessing, reliability computation, and metric calculation.
 
-- **`examples/`**  
-  Contains example datasets in various formats (**CSV, JSON, TSV**) to demonstrate the usage of Krippendorff's Alpha for different data types (**nominal, ordinal, interval, ratio**).  
-  Each dataset is accompanied by a description in the `README.md` file within the directory.
+- **`datasets/`**  
+  Contains example datasets in TSV format to demonstrate the usage of Krippendorff's Alpha for different data types (**nominal, ordinal, interval, ratio**).  
 
 - **`notebooks/`**  
   Contains usability examples for the code.
 
--------
-## Jupyter Notebook 
+---------------
 
-A Jupyter notebook is added to demonstrate the usage of Krippendorff's Alpha on various datasets.
+## Installation
 
--------
+```bash
+pip install krippendorff-aleph-alpha
+```
+
+Or using UV:
+
+```bash
+uv add krippendorff-aleph-alpha
+```
+
+## Usage
+
+```python
+import pandas as pd
+from krippendorff_alpha import compute_alpha
+from krippendorff_alpha.schema import ColumnMapping
+
+# Load your data
+df = pd.read_csv("your_data.tsv", sep="\t")
+
+# Define column mapping
+column_mapping = ColumnMapping(
+    text_col="text",
+    annotator_cols=["annotator1", "annotator2", "annotator3"]
+)
+
+# Compute Krippendorff's alpha
+results = compute_alpha(
+    df=df,
+    data_type="nominal",
+    column_mapping=column_mapping
+)
+
+print(f"Alpha: {results['alpha']}")
+```
 
 ## Limitations
 
-1. Krippendorff’s alpha is more meaningful for larger data samples, however low agreement can still be a sign of labeling issue. 
+1. Krippendorff's alpha is more meaningful for larger data samples, however low agreement can still be a sign of labeling issue. 
 2. The code requires at least three annotator columns to compute inter-annotator agreement.
-3. The function computes Krippendorff’s alpha but does not provide statistical significance (e.g., confidence intervals).
+3. The function computes Krippendorff's alpha but does not provide statistical significance (e.g., confidence intervals).
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! See the [Contributing.md](krippendorff-aleph-alpha/CONTRIBUTING.md)
