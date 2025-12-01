@@ -1,6 +1,6 @@
 [project]
 name = "krippendorff-aleph-alpha"
-version = "0.1.17"
+dynamic = ["version"]
 authors = [{ name = "Zahra Kolagar", email = "zahra.kolagar@aleph-alpha.com" }]
 description = "A robust implementation of Krippendorff's Alpha for inter-annotator agreement"
 readme = "README.md"
@@ -43,6 +43,9 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/krippendorff_alpha/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/krippendorff_alpha"]

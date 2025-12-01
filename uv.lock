@@ -181,7 +181,6 @@ wheels = [
 
 [[package]]
 name = "krippendorff-aleph-alpha"
-version = "0.1.17"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
