@@ -87,21 +87,24 @@ class AnnotationSchema(BaseModel):
     @classmethod
     def validate_data_type(cls, v: str | DataTypeEnum) -> DataTypeEnum:
         result = cls._validate_enum_field(v, DataTypeEnum, "data_type")
-        assert isinstance(result, DataTypeEnum)
+        if not isinstance(result, DataTypeEnum):
+            raise TypeError(f"Expected DataTypeEnum, got {type(result)}")
         return result
 
     @field_validator("missing_value_strategy", mode="before")
     @classmethod
     def validate_missing_value_strategy(cls, v: str | MissingValueStrategyEnum) -> MissingValueStrategyEnum:
         result = cls._validate_enum_field(v, MissingValueStrategyEnum, "missing_value_strategy")
-        assert isinstance(result, MissingValueStrategyEnum)
+        if not isinstance(result, MissingValueStrategyEnum):
+            raise TypeError(f"Expected MissingValueStrategyEnum, got {type(result)}")
         return result
 
     @field_validator("annotation_level", mode="before")
     @classmethod
     def validate_annotation_level(cls, v: str | AnnotationLevelEnum) -> AnnotationLevelEnum:
         result = cls._validate_enum_field(v, AnnotationLevelEnum, "annotation_level")
-        assert isinstance(result, AnnotationLevelEnum)
+        if not isinstance(result, AnnotationLevelEnum):
+            raise TypeError(f"Expected AnnotationLevelEnum, got {type(result)}")
         return result
 
     def get_data_type_mapping(self, annotator_cols: list[str]) -> dict[str, DataTypeEnum]:
